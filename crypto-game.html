@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>크립토 트레이더 - 모의투자 시뮬레이터</title>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--border:#1e2a3a;--text:#e5e7eb;--muted:#6b7280;--buy:#ef4444;--sell:#3b82f6;--profit:#22c55e;--loss:#ef4444;--accent:#f59e0b;--sidebar:320px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;min-height:100vh;font-size:15px;}
+
+/* ─── 헤더 ─── */
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 28px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+.logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.header-stats{display:flex;gap:28px;align-items:center;}
+.stat{text-align:center;}
+.stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.stat-val{font-size:19px;font-weight:700;}
+.stat-val.profit{color:var(--profit);}
+.stat-val.loss{color:var(--loss);}
+
+/* ─── 카운트다운 ─── */
+.timer-box{display:flex;flex-direction:column;align-items:center;background:linear-gradient(135deg,#1a1f2e,#0d1117);padding:10px 28px;border-radius:12px;min-width:120px;border:2px solid var(--accent);box-shadow:0 0 20px rgba(245,158,11,.15);}
+.timer-label{font-size:11px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
+.timer-val{font-size:52px;font-weight:900;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1;text-shadow:0 0 20px rgba(245,158,11,.4);}
+.timer-val.urgent{color:var(--loss);animation:blink .5s infinite;text-shadow:0 0 30px rgba(239,68,68,.6);}
+@keyframes blink{50%{opacity:.3;}}
+.turn-badge{font-size:13px;background:var(--accent);color:#000;padding:3px 10px;border-radius:4px;font-weight:700;}
+
+/* ─── 메인 레이아웃: 사이드바 + 코인 영역 ─── */
+.main-layout{display:flex;gap:0;position:relative;}
+
+/* ─── 왼쪽 사이드바 (고정) ─── */
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);position:sticky;top:62px;height:calc(100vh - 62px);overflow-y:auto;background:#0d1117;border-right:1px solid var(--border);padding:16px;display:flex;flex-direction:column;gap:14px;z-index:50;}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-thumb{background:#1e2a3a;border-radius:2px;}
+
+/* 사이드바 섹션 공통 */
+.sb-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.sb-title{font-size:12px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+
+/* 턴 게이지 */
+.turn-gauge{margin-bottom:4px;}
+.turn-gauge-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.turn-gauge-text{font-size:14px;font-weight:800;}
+.turn-gauge-track{width:100%;height:14px;background:#1f2937;border-radius:7px;overflow:hidden;position:relative;}
+.turn-gauge-fill{height:100%;border-radius:7px;transition:width .5s;background:linear-gradient(90deg,var(--accent),#eab308);}
+.turn-gauge-fill.ending{background:linear-gradient(90deg,#ef4444,#f87171);}
+.turn-gauge-marks{display:flex;justify-content:space-between;font-size:9px;color:#374151;margin-top:3px;}
+
+/* 소득수준 */
+.income-section .income-track{width:100%;height:12px;background:#1f2937;border-radius:6px;overflow:hidden;margin-bottom:4px;}
+.income-section .income-fill{height:100%;border-radius:6px;transition:width .5s,background .5s;}
+.income-section .income-info{display:flex;justify-content:space-between;align-items:center;}
+.income-section .income-grade{font-size:14px;font-weight:800;}
+.income-section .income-pct{font-size:12px;color:var(--muted);}
+.income-ticks{display:flex;justify-content:space-between;font-size:8px;color:#374151;margin-top:2px;}
+
+/* 뉴스 패널 (사이드바 내) */
+.news-card{background:#0d1117;border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px;position:relative;overflow:hidden;transition:all .2s;}
+.news-card:last-child{margin-bottom:0;}
+.news-card:hover{border-color:#374151;}
+.news-card.main-news{border-color:var(--accent);border-width:2px;background:linear-gradient(135deg,rgba(245,158,11,.06),#0d1117);}
+.news-card.main-news .news-headline{font-size:15px;font-weight:800;line-height:1.4;}
+.news-tag{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;}
+.news-tag.bullish{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);}
+.news-tag.bearish{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
+.news-tag.neutral{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
+.news-headline{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:4px;}
+.news-detail{font-size:11px;color:var(--muted);line-height:1.4;}
+.news-coin-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:4px;}
+.news-impact{position:absolute;top:8px;right:8px;font-size:11px;font-weight:900;}
+.news-impact.positive{color:var(--profit);}
+.news-impact.negative{color:var(--loss);}
+.sb-title::before{content:'';display:inline-block;width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse-dot 1.5s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* ─── 오른쪽 코인 영역 (2열 그리드) ─── */
+.coin-area{flex:1;padding:12px 16px 110px;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px;align-content:start;}
+
+/* 코인 카드 */
+.coin-section{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .3s;}
+.coin-section.news-boost{border-color:rgba(34,197,94,.4);box-shadow:0 0 12px rgba(34,197,94,.1);}
+.coin-section.news-crash{border-color:rgba(239,68,68,.4);box-shadow:0 0 12px rgba(239,68,68,.1);}
+.coin-header{display:flex;align-items:center;padding:10px 12px;gap:10px;border-bottom:1px solid var(--border);}
+.coin-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;flex-shrink:0;}
+.coin-title{flex:1;min-width:0;}
+.coin-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.coin-sym{font-size:12px;color:var(--muted);}
+.coin-price-area{text-align:right;flex-shrink:0;}
+.coin-price{font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;}
+
+/* 등락률 강조 */
+.coin-change{font-size:15px;font-weight:900;padding:3px 8px;border-radius:5px;display:inline-block;margin-top:2px;letter-spacing:.5px;}
+.coin-change.up{color:#22c55e;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);text-shadow:0 0 8px rgba(34,197,94,.3);}
+.coin-change.down{color:#ef4444;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);text-shadow:0 0 8px rgba(239,68,68,.3);}
+.coin-change.big-up{font-size:17px;color:#22c55e;background:rgba(34,197,94,.25);border:2px solid rgba(34,197,94,.5);text-shadow:0 0 12px rgba(34,197,94,.5);animation:glow-green 1s ease-in-out infinite alternate;}
+.coin-change.big-down{font-size:17px;color:#ef4444;background:rgba(239,68,68,.25);border:2px solid rgba(239,68,68,.5);text-shadow:0 0 12px rgba(239,68,68,.5);animation:glow-red 1s ease-in-out infinite alternate;}
+@keyframes glow-green{to{box-shadow:0 0 16px rgba(34,197,94,.4);}}
+@keyframes glow-red{to{box-shadow:0 0 16px rgba(239,68,68,.4);}}
+
+.coin-hold{text-align:right;min-width:0;padding-right:6px;flex-shrink:0;}
+.coin-hold-label{font-size:10px;color:var(--muted);}
+.coin-hold-qty{font-size:14px;font-weight:700;color:var(--accent);}
+.coin-hold-val{font-size:11px;color:var(--muted);}
+
+/* 차트 */
+.chart-area{padding:6px 12px;height:110px;position:relative;}
+.chart-area canvas{width:100%;height:100%;}
+
+/* 주문 버튼 — 2행 컴팩트 */
+.order-row{display:flex;align-items:center;padding:6px 8px;gap:3px;border-top:1px solid var(--border);background:#0d1117;flex-wrap:wrap;justify-content:center;}
+.order-row::-webkit-scrollbar{height:0;}
+.order-btn{padding:5px 2px;font-size:11px;font-weight:700;border:1px solid;border-radius:4px;cursor:pointer;transition:all .15s;text-align:center;min-width:38px;max-width:60px;flex:1;background:transparent;}
+.order-btn:hover{transform:translateY(-1px);}
+.order-btn:active{transform:translateY(0);}
+.order-btn.sell{color:var(--sell);border-color:rgba(59,130,246,.3);}
+.order-btn.sell:hover{background:rgba(59,130,246,.1);}
+.order-btn.sell.active{background:rgba(59,130,246,.2);border-color:var(--sell);box-shadow:0 0 8px rgba(59,130,246,.3);}
+.order-btn.buy{color:var(--buy);border-color:rgba(239,68,68,.3);}
+.order-btn.buy:hover{background:rgba(239,68,68,.1);}
+.order-btn.buy.active{background:rgba(239,68,68,.2);border-color:var(--buy);box-shadow:0 0 8px rgba(239,68,68,.3);}
+.order-btn.all-sell{color:#fff;background:rgba(59,130,246,.2);border-color:var(--sell);font-weight:900;font-size:9px;}
+.order-btn.all-sell:hover{background:rgba(59,130,246,.35);}
+.order-btn.all-buy{color:#fff;background:rgba(239,68,68,.2);border-color:var(--buy);font-weight:900;font-size:9px;}
+.order-btn.all-buy:hover{background:rgba(239,68,68,.35);}
+.order-divider{width:2px;height:24px;background:var(--border);margin:0 2px;flex-shrink:0;}
+.order-custom{padding:4px;font-size:11px;width:48px;background:#1a2332;border:1px solid var(--border);border-radius:4px;color:var(--text);text-align:center;flex-shrink:0;}
+.order-custom:focus{outline:none;border-color:var(--accent);}
+.order-pending{font-size:11px;font-weight:700;min-width:70px;text-align:center;padding:4px;border-radius:4px;flex-shrink:0;}
+.order-pending.buy-pending{color:var(--buy);background:rgba(239,68,68,.08);}
+.order-pending.sell-pending{color:var(--sell);background:rgba(59,130,246,.08);}
+
+/* ─── 하단 고정바 ─── */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);padding:12px 28px;display:flex;justify-content:space-between;align-items:center;z-index:100;gap:16px;}
+.pending-summary{font-size:14px;color:var(--muted);flex:1;}
+.pending-summary span{font-weight:700;}
+.submit-btn{padding:14px 52px;font-size:17px;font-weight:800;color:#000;background:linear-gradient(135deg,#f59e0b,#eab308);border:none;border-radius:10px;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.submit-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(245,158,11,.4);}
+.submit-btn:active{transform:translateY(0);}
+.submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none;}
+.reset-btn{padding:10px 18px;font-size:14px;color:var(--muted);background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;}
+.reset-btn:hover{background:#1a2332;}
+
+/* ─── 오버레이 ─── */
+#overlay{position:fixed;inset:0;background:rgba(10,14,23,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity .4s;}
+#overlay.hidden{opacity:0;pointer-events:none;}
+#overlay h1{font-size:40px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+#overlay .desc{color:var(--muted);font-size:15px;text-align:center;max-width:520px;line-height:1.9;margin-bottom:22px;}
+#overlay .start-btn{padding:16px 60px;font-size:18px;font-weight:800;color:#000;background:linear-gradient(135deg,#f59e0b,#eab308);border:none;border-radius:12px;cursor:pointer;transition:all .2s;}
+#overlay .start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(245,158,11,.4);}
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;text-align:center;margin-bottom:18px;min-width:440px;max-width:560px;}
+.result-title{font-size:36px;font-weight:800;margin-bottom:4px;}
+.result-rank{font-size:56px;font-weight:900;margin:8px 0;line-height:1;}
+.result-rank .pct{font-size:28px;vertical-align:super;}
+.result-comment{font-size:16px;font-weight:600;margin:8px 0 14px;min-height:24px;}
+.result-curve{margin:10px auto 14px;display:block;}
+.result-stats{font-size:13px;color:var(--muted);line-height:2.0;}
+
+/* 시스템 뉴스 (하단) */
+.sys-news{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);background:rgba(17,24,39,.95);border:1px solid var(--border);border-radius:6px;padding:8px 20px;font-size:13px;color:var(--accent);z-index:50;transition:opacity .5s;white-space:nowrap;max-width:700px;}
+.sys-news.hidden{opacity:0;pointer-events:none;}
+
+/* ─── 모바일 사이드바 토글 ─── */
+.mobile-sidebar-toggle{display:none;}
+.sidebar-overlay{display:none;}
+
+@media(max-width:1200px){
+  .sidebar{width:260px;min-width:260px;padding:12px;}
+  .coin-area{padding:10px 10px 110px;gap:10px;}
+}
+@media(max-width:1000px){
+  .sidebar{width:240px;min-width:240px;padding:10px;}
+  .coin-area{grid-template-columns:1fr;padding:10px 10px 110px;gap:10px;}
+}
+
+/* ═══ 모바일 최적화 (768px 이하) ═══ */
+@media(max-width:768px){
+  body{font-size:14px;-webkit-text-size-adjust:100%;}
+
+  /* 헤더: 2행 컴팩트 */
+  header{flex-wrap:wrap;padding:8px 12px;gap:6px;}
+  .logo{font-size:18px;flex:1;}
+  .header-stats{gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  .stat{display:block!important;}
+  .stat-label{font-size:9px;letter-spacing:0;}
+  .stat-val{font-size:14px;}
+  .timer-box{padding:6px 14px;min-width:80px;border-radius:8px;}
+  .timer-label{font-size:9px;letter-spacing:.5px;}
+  .timer-val{font-size:34px;text-shadow:0 0 12px rgba(245,158,11,.3);}
+  .turn-badge{font-size:11px;padding:2px 7px;}
+
+  /* 메인: 세로 레이아웃 */
+  .main-layout{flex-direction:column;}
+
+  /* 사이드바: 슬라이드 드로어 */
+  .sidebar{
+    position:fixed;top:0;left:-100%;width:85vw;max-width:340px;min-width:auto;
+    height:100vh;z-index:300;padding:14px;gap:12px;
+    border-right:1px solid var(--border);border-bottom:none;
+    transition:left .3s ease;overflow-y:auto;
+  }
+  .sidebar.open{left:0;}
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:250;
+  }
+  .sidebar-overlay.show{display:block;}
+  .mobile-sidebar-toggle{
+    display:flex;align-items:center;justify-content:center;
+    position:fixed;bottom:70px;left:10px;z-index:100;
+    width:44px;height:44px;border-radius:50%;
+    background:var(--accent);color:#000;font-size:18px;font-weight:900;
+    border:none;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,.4);
+  }
+
+  /* 코인 영역 */
+  .coin-area{grid-template-columns:1fr;padding:8px 8px 80px;gap:8px;}
+
+  /* 코인 카드 */
+  .coin-header{padding:8px 10px;gap:8px;}
+  .coin-icon{width:32px;height:32px;font-size:13px;}
+  .coin-name{font-size:14px;}
+  .coin-sym{font-size:11px;}
+  .coin-price{font-size:17px;}
+  .coin-change{font-size:13px;padding:2px 6px;}
+  .coin-change.big-up,.coin-change.big-down{font-size:15px;}
+  .coin-hold-qty{font-size:13px;}
+  .coin-hold-val{font-size:10px;}
+  .coin-hold-label{font-size:9px;}
+
+  /* 차트 */
+  .chart-area{height:90px;padding:4px 8px;}
+
+  /* 주문 버튼 — 모바일 터치 최적화 */
+  .order-row{padding:6px 6px;gap:4px;flex-wrap:wrap;justify-content:center;}
+  .order-btn{min-width:40px;max-width:56px;padding:8px 2px;font-size:11px;border-radius:5px;-webkit-tap-highlight-color:transparent;}
+  .order-btn.all-sell,.order-btn.all-buy{font-size:9px;padding:6px 2px;}
+  .order-divider{height:20px;margin:0 1px;}
+  .order-custom{width:44px;padding:6px 2px;font-size:11px;}
+  .order-pending{min-width:60px;font-size:10px;padding:4px 2px;}
+
+  /* 하단바 */
+  .bottom-bar{padding:8px 10px;gap:8px;}
+  .pending-summary{font-size:11px;}
+  .submit-btn{padding:10px 18px;font-size:14px;border-radius:8px;}
+  .reset-btn{padding:8px 12px;font-size:12px;}
+
+  /* 시스템 뉴스 */
+  .sys-news{bottom:56px;font-size:11px;padding:6px 12px;max-width:90vw;white-space:normal;text-align:center;}
+
+  /* 오버레이/결과 — 모바일 스크롤 */
+  #overlay{overflow-y:auto;padding:20px 16px;justify-content:flex-start;padding-top:10vh;}
+  #overlay h1{font-size:28px;}
+  #overlay .desc{font-size:13px;line-height:1.7;max-width:100%;margin-bottom:16px;padding:0 8px;}
+  #overlay .start-btn{padding:14px 40px;font-size:16px;}
+  .result-card{min-width:auto;max-width:100%;width:100%;padding:20px 16px;}
+  .result-title{font-size:26px;}
+  .result-title span{font-size:15px!important;}
+  .result-rank{font-size:42px;}
+  .result-rank .pct{font-size:22px;}
+  .result-comment{font-size:14px;}
+  .result-curve{width:100%!important;max-width:360px;}
+  .result-stats{font-size:12px;line-height:1.8;}
+
+  /* 사이드바 내부 모바일 최적화 */
+  .sb-section{padding:10px;}
+  .sb-title{font-size:11px;margin-bottom:8px;}
+  .turn-gauge-text{font-size:13px;}
+  .news-card{padding:8px;}
+  .news-card.main-news .news-headline{font-size:14px;}
+  .news-headline{font-size:12px;}
+  .news-detail{font-size:10px;}
+}
+
+/* ═══ 매우 작은 화면 (480px 이하) ═══ */
+@media(max-width:480px){
+  header{padding:6px 8px;}
+  .logo{font-size:15px;}
+  .header-stats{gap:5px;}
+  .stat-label{font-size:8px;}
+  .stat-val{font-size:12px;}
+  .timer-box{padding:4px 10px;min-width:60px;}
+  .timer-val{font-size:28px;}
+  .coin-area{padding:6px 4px 76px;gap:6px;}
+  .coin-header{padding:6px 8px;gap:6px;}
+  .coin-icon{width:28px;height:28px;font-size:12px;}
+  .coin-name{font-size:13px;}
+  .coin-price{font-size:15px;}
+  .coin-change{font-size:12px;padding:2px 5px;}
+  .chart-area{height:80px;}
+  .order-btn{min-width:36px;font-size:10px;padding:7px 1px;}
+  .bottom-bar{padding:6px 8px;}
+  .submit-btn{padding:8px 14px;font-size:13px;}
+  .reset-btn{padding:6px 10px;font-size:11px;}
+  .mobile-sidebar-toggle{width:38px;height:38px;font-size:16px;bottom:58px;left:6px;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">크립토 트레이더</div>
+  <div class="header-stats">
+    <div class="stat"><div class="stat-label">현금</div><div class="stat-val" id="s-cash">$1,000</div></div>
+    <div class="stat"><div class="stat-label">코인자산</div><div class="stat-val" id="s-hold">$0</div></div>
+    <div class="stat"><div class="stat-label">총자산</div><div class="stat-val" id="s-total">$1,000</div></div>
+    <div class="stat"><div class="stat-label">수익률</div><div class="stat-val" id="s-pnl">0.0%</div></div>
+    <div class="timer-box" id="timer-box">
+      <div class="timer-label">⏱ 남은 시간</div>
+      <div class="timer-val" id="s-timer">60</div>
+    </div>
+  </div>
+</header>
+
+<div class="main-layout">
+  <!-- ═══ 왼쪽 사이드바 (고정) ═══ -->
+  <aside class="sidebar">
+    <!-- 턴 게이지 -->
+    <div class="sb-section">
+      <div class="sb-title">📊 턴 진행</div>
+      <div class="turn-gauge">
+        <div class="turn-gauge-row">
+          <span class="turn-gauge-text" id="turn-text">턴 1 / 20</span>
+          <span class="turn-badge" id="s-turn">1</span>
+        </div>
+        <div class="turn-gauge-track"><div class="turn-gauge-fill" id="turn-fill" style="width:5%;"></div></div>
+        <div class="turn-gauge-marks"><span>1</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+      </div>
+    </div>
+
+    <!-- 소득수준 -->
+    <div class="sb-section income-section">
+      <div class="sb-title">💼 소득수준</div>
+      <div class="income-track"><div class="income-fill" id="ig-fill" style="width:50%;background:#f59e0b;"></div></div>
+      <div class="income-info">
+        <span class="income-grade" id="ig-grade">중산층</span>
+        <span class="income-pct" id="ig-pct">50%</span>
+      </div>
+      <div class="income-ticks"><span>극빈</span><span>빈곤</span><span>저소득</span><span>중산</span><span>고소득</span><span>상류</span></div>
+    </div>
+
+    <!-- 뉴스 -->
+    <div class="sb-section">
+      <div class="sb-title">📰 이번 턴 속보</div>
+      <div id="news-cards"></div>
+    </div>
+  </aside>
+
+  <!-- ═══ 오른쪽 코인 영역 ═══ -->
+  <div class="coin-area" id="coin-container"></div>
+</div>
+
+<div class="bottom-bar">
+  <div class="pending-summary" id="pending-summary">주문을 설정하고 제출하세요.</div>
+  <button class="reset-btn" onclick="resetOrders()">초기화</button>
+  <button class="submit-btn" onclick="submitOrders()">📊 주문 제출 → 다음 턴</button>
+</div>
+
+<div id="overlay">
+  <h1>크립토 트레이더</h1>
+  <div class="desc">
+    모의투자 시뮬레이터<br><br>
+    • 8개 가상 코인 차트를 보며 <b>20턴</b> 동안 투자<br>
+    • 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>
+    • 뉴스의 군중심리를 읽고 빠르게 대응하세요!<br>
+    • <b>전액 매수/매도</b>로 한 번에 올인 가능<br>
+    • <b>제출 버튼</b>을 누르면 주문 체결 → 다음 턴<br>
+    • 1턴 = 1분, 시간 내에 주문을 완료하세요<br>
+    • 가만히 있으면 인플레이션으로 현금 가치 ↓<br>
+    • 💀 상장폐지 코인 주의!<br><br>
+    <span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>
+  </div>
+  <div class="result-card" id="result-card" style="display:none;"></div>
+  <button class="start-btn" id="start-btn">게임 시작</button>
+</div>
+
+<!-- 모바일 사이드바 토글 -->
+<button class="mobile-sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">📰</button>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<div class="sys-news hidden" id="sys-news"></div>
+
+<script>
+// ════════════════════════════════════════════════
+// 크립토 트레이더 v9 — 모바일 UI 최적화
+// ════════════════════════════════════════════════
+
+const COIN_NAME_POOL=[
+  {sym:'NOVA',name:'노바코인',color:'#e040fb'},{sym:'ZENX',name:'제닉스',color:'#7c4dff'},
+  {sym:'BOLT',name:'볼트체인',color:'#ff6d00'},{sym:'LYNX',name:'링크스',color:'#00e5ff'},
+  {sym:'DUSK',name:'더스크',color:'#546e7a'},{sym:'FLUX',name:'플럭스',color:'#76ff03'},
+  {sym:'ORCA',name:'오르카',color:'#2979ff'},{sym:'PYRE',name:'파이어',color:'#ff1744'},
+  {sym:'IRIS',name:'아이리스',color:'#d500f9'},{sym:'KODA',name:'코다',color:'#00bfa5'},
+  {sym:'RYZE',name:'라이즈',color:'#ffab00'},{sym:'VYNE',name:'바인',color:'#69f0ae'},
+  {sym:'APEX',name:'에이펙스',color:'#f50057'},{sym:'CUBE',name:'큐브',color:'#304ffe'},
+  {sym:'ECHO',name:'에코',color:'#18ffff'},{sym:'HALO',name:'헤일로',color:'#ffd600'},
+  {sym:'JADE',name:'제이드',color:'#00c853'},{sym:'MOON',name:'문코인',color:'#b388ff'},
+  {sym:'NEON',name:'네온',color:'#64ffda'},{sym:'ONYX',name:'오닉스',color:'#cfd8dc'},
+  {sym:'PIXEL',name:'픽셀',color:'#ea80fc'},{sym:'QUASAR',name:'퀘이사',color:'#40c4ff'},
+];
+const SCAM_NAME_POOL=[
+  {sym:'RUGX',name:'럭풀X',color:'#f5a623'},{sym:'PUMP',name:'펌프잇',color:'#5fcfca'},
+  {sym:'SCAM',name:'스캐미',color:'#e74c3c'},{sym:'EXIT',name:'엑시트코인',color:'#ff6b6b'},
+  {sym:'FAKE',name:'페이크문',color:'#ff9ff3'},
+];
+
+const NEWS_POOL={
+  bullish:[
+    {headline:'{NAME}, 대형 거래소 3곳 동시 상장 확정',detail:'글로벌 TOP3 거래소 동시 상장, 거래량 폭증 예상',impact:.9,crowd:25},
+    {headline:'"{SYM} 생태계 혁명" — 글로벌 기업 파트너십 체결',detail:'포춘500 기업과 전략적 제휴',impact:.85,crowd:20},
+    {headline:'{NAME} 메인넷 업그레이드 성공, TPS 100배 향상',detail:'처리속도 획기적 개선, 개발자 환호',impact:.75,crowd:18},
+    {headline:'고래 지갑, {SYM} $500만 추가 매수 포착',detail:'대형 투자자 연속 3일 매집 중',impact:.7,crowd:15},
+    {headline:'{NAME}, 정부 블록체인 사업 우선협상 대상자 선정',detail:'공공기관 인프라 구축에 핵심 기술 채택',impact:.8,crowd:22},
+    {headline:'유명 펀드매니저 "지금 {SYM} 안 사면 후회"',detail:'월가 전설적 투자자 강력 매수 추천',impact:.6,crowd:12},
+    {headline:'{NAME} 커뮤니티 100만 돌파',detail:'일일 활성 사용자 급증, 성장세 가속화',impact:.5,crowd:10},
+    {headline:'{SYM} 디파이 프로토콜 출시, TVL 급등',detail:'혁신적 수익률 구조로 유동성 대거 유입',impact:.65,crowd:14},
+    {headline:'속보: {NAME} ETF 승인 임박설 확산',detail:'규제 당국 내부 소식통, 이번 달 내 결정',impact:.95,crowd:28},
+    {headline:'{SYM} 반감기 D-30, 공급 축소 기대감',detail:'역사적 반감기 전후 평균 200% 상승',impact:.7,crowd:16},
+  ],
+  bearish:[
+    {headline:'긴급: {NAME} 스마트 컨트랙트 취약점 발견',detail:'치명적 버그 리포트 공개, 해킹 위험',impact:.9,crowd:-25},
+    {headline:'{SYM} 핵심 개발자 3명 동시 퇴사',detail:'내부 갈등설 확산, 로드맵 이행 불투명',impact:.8,crowd:-20},
+    {headline:'규제 당국, {NAME} 거래 전면 조사 착수',detail:'자금세탁 의혹으로 공식 조사 개시',impact:.85,crowd:-22},
+    {headline:'{SYM} 고래 지갑, 보유분 70% 대량 매도',detail:'상위 10개 지갑 동시 매도 신호',impact:.75,crowd:-18},
+    {headline:'"{NAME}는 사기" — 유명 분석가 폭탄 발언',detail:'100만 팔로워 인플루언서 기술 결함 분석',impact:.65,crowd:-15},
+    {headline:'{SYM} 네트워크 6시간째 다운',detail:'노드 운영자 이탈, 트랜잭션 완전 중단',impact:.8,crowd:-20},
+    {headline:'{NAME} 파트너사 파산 신청',detail:'핵심 협력 기업 Chapter 11, 연쇄 영향 우려',impact:.7,crowd:-16},
+    {headline:'주요 거래소, {SYM} 상장 폐지 검토',detail:'거래량 급감과 규제 리스크로 퇴출 가능성',impact:.85,crowd:-24},
+    {headline:'{NAME} 팀 물량 대규모 언락',detail:'전체 공급량 15% 해제, 매도 압력 예상',impact:.6,crowd:-12},
+    {headline:'글로벌 금리 인상 쇼크, {SYM} 직격탄',detail:'연준 긴급 금리 인상, 위험자산 급락',impact:.7,crowd:-18},
+  ],
+  neutral:[
+    {headline:'{NAME}, 신규 로드맵 발표... 반응 엇갈려',detail:'혁신적이나 실현 가능성 의문',impact:.4,crowd:0},
+    {headline:'규제 강화 논의 — {SYM} 포함 시장 경계',detail:'주요국 암호화폐 규제 프레임워크 논의',impact:.5,crowd:-5},
+    {headline:'{SYM} 거래량 급변, 대형 이벤트 전조?',detail:'비정상적 거래 패턴, 방향성 불확실',impact:.3,crowd:0},
+    {headline:'시장 횡보세, {NAME} 향방 주목',detail:'매수·매도 세력 팽팽, 돌파 방향 관심',impact:.2,crowd:0},
+    {headline:'{NAME} 창립자: "아직 시작도 안 했다"',detail:'장기 비전 강조, 단기 호재 부재',impact:.35,crowd:3},
+    {headline:'{SYM} vs 경쟁 코인, 기술 비교 화제',detail:'전문 매체 심층 비교, 각각 장단점',impact:.25,crowd:0},
+  ]
+};
+const MARKET_NEWS_POOL={
+  bullish:[
+    {headline:'🌍 글로벌 기관투자자 암호화폐 시장 대거 진입',detail:'연기금·보험사 포트폴리오 5% 배분',impact:.5,crowd:8},
+    {headline:'💰 암호화폐 시가총액 사상 최고치 갱신',detail:'시장 활황, 신규 자금 유입 가속',impact:.4,crowd:6},
+    {headline:'📱 빅테크, 암호화폐 결제 통합 발표',detail:'실생활 사용 사례 확대, 낙관론',impact:.45,crowd:7},
+  ],
+  bearish:[
+    {headline:'🔻 미 연준 긴급 성명 — 긴축 가속화',detail:'위험자산 하락 압력, 심리 급랭',impact:.5,crowd:-8},
+    {headline:'🚨 대형 거래소 해킹, 시장 패닉',detail:'수억 달러 유출, 보안 신뢰 추락',impact:.55,crowd:-10},
+    {headline:'⚖️ 주요국 암호화폐 전면 금지법 추진',detail:'투자자 대이탈 우려, 공포 확산',impact:.5,crowd:-9},
+  ]
+};
+
+let COINS=[],SCAM_POOL=[];
+const START_CASH=1000,MAX_TURNS=20,TURN_TIME=60,INFLATION_PER_TURN=0.005;
+
+let cash=START_CASH,holdings={},prices={},priceHist={},changes={},orders={};
+let turn=0,timeLeft=TURN_TIME,timerInterval=null,gameRunning=false;
+let income=50,inflTotal=0,delistedSet=new Set(),scamTimers={},activeScam=null;
+let currentNews=[],newsEffects={};
+
+function generateRandomCoins(){
+  const s=[...COIN_NAME_POOL].sort(()=>Math.random()-.5);
+  COINS=s.slice(0,8).map(c=>({...c,baseP:Math.round((5+Math.random()*55)*100)/100}));
+  SCAM_POOL=[...SCAM_NAME_POOL].sort(()=>Math.random()-.5).slice(0,3);
+}
+
+// ═══ 뉴스 생성 ═══
+function generateNews(){
+  currentNews=[];newsEffects={};
+  const ac=COINS.filter(c=>!delistedSet.has(c.sym)&&!c.isScam);
+  if(!ac.length)return;
+  const used=new Set(),usedH=new Set();
+  function pick(){const a=ac.filter(c=>!used.has(c.sym));const c=(a.length?a:ac)[Math.floor(Math.random()*(a.length||ac.length))];used.add(c.sym);return c;}
+  function pickN(pool,coin){const l=pool.filter(n=>!usedH.has(n.headline));const n=(l.length?l:pool)[Math.floor(Math.random()*(l.length||pool.length))];usedH.add(n.headline);return{...n,headline:n.headline.replace(/{SYM}/g,coin?coin.sym:'').replace(/{NAME}/g,coin?coin.name:''),detail:n.detail.replace(/{SYM}/g,coin?coin.sym:'').replace(/{NAME}/g,coin?coin.name:'')};}
+  const r=Math.random(),sent=r<.4?'bullish':r<.75?'bearish':'neutral';
+  if(Math.random()<.3&&sent!=='neutral'){
+    const p=MARKET_NEWS_POOL[sent],n=p[Math.floor(Math.random()*p.length)];
+    currentNews.push({...n,sentiment:sent,isMain:true,targetSym:'MARKET'});
+    for(const c of ac)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd;
+  }else{
+    const coin=pick(),p=NEWS_POOL[sent],n=pickN(p,coin);
+    currentNews.push({...n,sentiment:sent,isMain:true,targetSym:coin.sym});
+    newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd*(1+n.impact*.5);
+    for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.15;
+  }
+  for(let i=0;i<2;i++){
+    const coin=pick(),r2=Math.random(),s2=r2<.4?'bullish':r2<.7?'bearish':'neutral';
+    const n=pickN(NEWS_POOL[s2],coin);
+    currentNews.push({...n,sentiment:s2,isMain:false,targetSym:coin.sym});
+    newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd;
+    for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.08;
+  }
+}
+
+function renderNewsPanel(){
+  const ct=document.getElementById('news-cards');
+  ct.innerHTML='';
+  if(!currentNews.length)return;
+  currentNews.forEach((n,i)=>{
+    const d=document.createElement('div');
+    d.className='news-card'+(i===0?' main-news':'');
+    const tc=n.sentiment==='bullish'?'bullish':n.sentiment==='bearish'?'bearish':'neutral';
+    const tt=n.sentiment==='bullish'?'호재':n.sentiment==='bearish'?'악재':'혼합';
+    const it=n.crowd>0?`+${n.crowd.toFixed(0)}%`:n.crowd<0?`${n.crowd.toFixed(0)}%`:'±0%';
+    const ic=n.crowd>0?'positive':n.crowd<0?'negative':'';
+    d.innerHTML=`<span class="news-tag ${tc}">${tt}</span><div class="news-impact ${ic}">${it}</div><div class="news-headline">${n.headline}</div><div class="news-detail">${n.detail}</div><span class="news-coin-badge">${n.targetSym==='MARKET'?'전체 시장':n.targetSym}</span>`;
+    ct.appendChild(d);
+  });
+}
+
+// ═══ 시세 ═══
+function initPrices(){
+  for(const c of COINS){
+    if(c.isScam){prices[c.sym]=c.baseP;changes[c.sym]=Math.random()*20+5;priceHist[c.sym]=[c.baseP];continue;}
+    prices[c.sym]=c.baseP;changes[c.sym]=Math.random()*10-5;priceHist[c.sym]=[c.baseP];
+  }
+}
+function simulateNextTurn(){
+  generateNews();
+  for(const c of COINS){
+    if(delistedSet.has(c.sym)){prices[c.sym]=0;changes[c.sym]=-100;continue;}
+    const prev=prices[c.sym],trend=(changes[c.sym]||0)*.2,rnd=Math.random()*20-10;
+    let base=trend+rnd*.8;const crowd=newsEffects[c.sym]||0;
+    const total=Math.max(-30,Math.min(35,base+crowd));
+    const np=Math.max(.5,prev*(1+total/100));
+    prices[c.sym]=np;changes[c.sym]=((np-prev)/prev)*100;
+    priceHist[c.sym].push(np);if(priceHist[c.sym].length>30)priceHist[c.sym].shift();
+  }
+  for(const[sym]of Object.entries(scamTimers)){
+    scamTimers[sym]--;
+    if(scamTimers[sym]<=0&&!delistedSet.has(sym)){
+      delistedSet.add(sym);prices[sym]=0;changes[sym]=-100;
+      showSysNews(`💀 ${sym} 상장폐지!`);
+      if(holdings[sym]&&holdings[sym].qty>0)holdings[sym].qty=0;
+    }
+  }
+  if(turn>3&&!activeScam&&Math.random()<.12){
+    const sc=SCAM_POOL[Math.floor(Math.random()*SCAM_POOL.length)];
+    activeScam={...sc,baseP:5+Math.random()*10,isScam:true};
+    COINS.push(activeScam);prices[sc.sym]=activeScam.baseP;changes[sc.sym]=Math.random()*30+10;
+    priceHist[sc.sym]=[activeScam.baseP];scamTimers[sc.sym]=2+Math.floor(Math.random()*3);
+    showSysNews(`⚠️ 신규 상장: ${sc.name}(${sc.sym}) — 스캠 주의!`);
+  }
+}
+
+// ═══ UI ═══
+function buildCoinCards(){
+  const ct=document.getElementById('coin-container');ct.innerHTML='';
+  for(const c of COINS){
+    const sym=c.sym,p=prices[sym]||c.baseP,ch=changes[sym]||0,isUp=ch>=0,isDead=delistedSet.has(sym);
+    const h=holdings[sym],hQty=h?h.qty:0,hq=hQty*p;
+    let cc=isUp?'up':'down';if(Math.abs(ch)>=10)cc=isUp?'big-up':'big-down';
+    const crowd=newsEffects[sym]||0;let se='';
+    if(crowd>=10)se=' news-boost';else if(crowd<=-10)se=' news-crash';
+    const sec=document.createElement('div');sec.className='coin-section'+se;sec.id=`coin-${sym}`;
+    if(isDead)sec.style.opacity='.4';
+    sec.innerHTML=`<div class="coin-header">
+      <div class="coin-icon" style="background:${c.color}">${sym[0]}</div>
+      <div class="coin-title"><div class="coin-name">${c.name} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym}</div></div>
+      <div class="coin-hold"><div class="coin-hold-label">보유</div><div class="coin-hold-qty">$${hq.toFixed(0)}</div><div class="coin-hold-val">${hQty.toFixed(4)} ${sym}</div></div>
+      <div class="coin-price-area"><div class="coin-price">$${p.toFixed(2)}</div><div class="coin-change ${cc}">${isUp?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
+    </div>
+    <div class="chart-area"><canvas id="chart-${sym}"></canvas></div>
+    <div class="order-row" id="order-${sym}">
+      <button class="order-btn all-sell sell" onclick="sellAll('${sym}',this)">전액<br>매도</button>
+      <input class="order-custom" type="number" min="5" step="5" placeholder="직접" id="cs-${sym}">
+      <button class="order-btn sell" onclick="setOrder('${sym}',-50,this)">$50</button>
+      <button class="order-btn sell" onclick="setOrder('${sym}',-30,this)">$30</button>
+      <button class="order-btn sell" onclick="setOrder('${sym}',-10,this)">$10</button>
+      <button class="order-btn sell" onclick="setOrder('${sym}',-5,this)">$5</button>
+      <div class="order-divider"></div>
+      <button class="order-btn buy" onclick="setOrder('${sym}',5,this)">$5</button>
+      <button class="order-btn buy" onclick="setOrder('${sym}',10,this)">$10</button>
+      <button class="order-btn buy" onclick="setOrder('${sym}',30,this)">$30</button>
+      <button class="order-btn buy" onclick="setOrder('${sym}',50,this)">$50</button>
+      <input class="order-custom" type="number" min="5" step="5" placeholder="직접" id="cb-${sym}">
+      <button class="order-btn all-buy buy" onclick="buyAll('${sym}',this)">전액<br>매수</button>
+      <div class="order-pending" id="pending-${sym}"></div>
+    </div>`;
+    ct.appendChild(sec);
+    document.getElementById(`cs-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,-v,null);this.value='';});
+    document.getElementById(`cb-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,v,null);this.value='';});
+  }
+  drawAllCharts();
+}
+function drawAllCharts(){for(const c of COINS)drawChart(c.sym,c.color);}
+function drawChart(sym,color){
+  const cv=document.getElementById(`chart-${sym}`);if(!cv)return;
+  const ctx=cv.getContext('2d'),rect=cv.parentElement.getBoundingClientRect();
+  cv.width=rect.width;cv.height=rect.height;const w=cv.width,h=cv.height;
+  ctx.clearRect(0,0,w,h);const hist=priceHist[sym]||[];if(hist.length<1)return;
+  const mn=Math.min(...hist)*.98,mx=Math.max(...hist)*1.02,rng=mx-mn||1;
+  ctx.strokeStyle='#1a2535';ctx.lineWidth=.5;
+  for(let i=0;i<5;i++){const y=h*i/4;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  ctx.fillStyle='#374151';ctx.font='10px sans-serif';ctx.textAlign='right';
+  for(let i=0;i<5;i++){const y=h*i/4;ctx.fillText('$'+(mx-(mx-mn)*i/4).toFixed(1),w-4,y+12);}
+  if(hist.length<2)return;
+  ctx.beginPath();
+  for(let i=0;i<hist.length;i++){const x=i/(hist.length-1)*w,y=h-((hist[i]-mn)/rng)*h;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();
+  const g=ctx.createLinearGradient(0,0,0,h);g.addColorStop(0,color+'30');g.addColorStop(1,color+'05');ctx.fillStyle=g;ctx.fill();
+  ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2;
+  for(let i=0;i<hist.length;i++){const x=i/(hist.length-1)*w,y=h-((hist[i]-mn)/rng)*h;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+  const lx=w,ly=h-((hist[hist.length-1]-mn)/rng)*h;
+  ctx.beginPath();ctx.arc(lx,ly,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();
+  ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.strokeStyle=color+'60';ctx.lineWidth=2;ctx.stroke();
+  if(hist.length>=2){const bw=Math.max(3,w/hist.length-2);
+    for(let i=1;i<hist.length;i++){const x=i/(hist.length-1)*w-bw/2,o=hist[i-1],cl=hist[i];
+      const t=Math.min(o,cl),b=Math.max(o,cl);
+      ctx.fillStyle=cl>=o?'rgba(34,197,94,.25)':'rgba(239,68,68,.25)';
+      ctx.fillRect(x,h-((b-mn)/rng)*h,bw,Math.max(1,(h-((t-mn)/rng)*h)-(h-((b-mn)/rng)*h)));
+    }
+  }
+}
+
+// ═══ 주문 ═══
+function setOrder(sym,amt,btn){
+  amt=parseInt(amt);if(delistedSet.has(sym)){showSysNews(`💀 ${sym} 거래불가`);return;}
+  const cur=orders[sym]||0,nw=cur+amt;
+  const p=prices[sym]||1;
+  if(nw<0){const ha=holdings[sym]?holdings[sym].qty*p:0;if(Math.abs(nw)>ha+0.5){showSysNews(`보유분($${ha.toFixed(0)}) 초과`);return;}}
+  if(nw>0){const tb=Object.values(orders).reduce((s,v)=>s+(v>0?v:0),0)-Math.max(0,cur)+Math.max(0,nw);if(tb>cash){showSysNews(`현금($${cash.toFixed(0)}) 부족`);return;}}
+  orders[sym]=nw;updateOD(sym);updatePS();
+  if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
+}
+function sellAll(sym,btn){
+  if(delistedSet.has(sym))return;const h=holdings[sym];const p=prices[sym]||1;
+  if(!h||h.qty<=0){showSysNews(`${sym} 보유분 없음`);return;}
+  const val=Math.floor(h.qty*p);
+  orders[sym]=-val;updateOD(sym);updatePS();
+  if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
+}
+function buyAll(sym,btn){
+  if(delistedSet.has(sym))return;
+  const ob=Object.entries(orders).reduce((s,[k,v])=>k!==sym&&v>0?s+v:s,0),av=cash-ob;
+  if(av<=0){showSysNews('현금 부족');return;}
+  orders[sym]=Math.floor(av);updateOD(sym);updatePS();
+  if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
+}
+function updateOD(sym){
+  const el=document.getElementById(`pending-${sym}`),v=orders[sym]||0;
+  if(!v){el.textContent='';el.className='order-pending';return;}
+  if(v>0){el.textContent=`매수 $${v}`;el.className='order-pending buy-pending';}
+  else{el.textContent=`매도 $${Math.abs(v)}`;el.className='order-pending sell-pending';}
+}
+function updatePS(){
+  let b=0,s=0,c=0;
+  for(const[,v]of Object.entries(orders)){if(v>0){b+=v;c++;}else if(v<0){s+=Math.abs(v);c++;}}
+  const el=document.getElementById('pending-summary');
+  el.innerHTML=c===0?'주문을 설정하고 제출하세요.':`<span>${c}건</span> — <span style="color:var(--buy)">매수 $${b}</span> | <span style="color:var(--sell)">매도 $${s}</span>`;
+}
+function resetOrders(){orders={};for(const c of COINS)updateOD(c.sym);updatePS();showSysNews('주문 초기화');}
+
+// ═══ 제출 ═══
+function submitOrders(){
+  if(!gameRunning)return;let bt=0,st=0;
+  for(const[sym,amt]of Object.entries(orders)){
+    if(!amt||delistedSet.has(sym))continue;const p=prices[sym];if(!p||p<=0)continue;
+    if(amt>0){if(amt>cash)continue;cash-=amt;const coinQty=amt/p;if(!holdings[sym])holdings[sym]={qty:0,totalCost:0};
+      holdings[sym].totalCost+=amt;holdings[sym].qty+=coinQty;bt+=amt;income=Math.min(100,income+1);
+    }else{const sa=Math.abs(amt),h=holdings[sym];if(!h)continue;const sellQty=sa/p;if(sellQty>h.qty*1.001)continue;
+      const actualQty=Math.min(sellQty,h.qty);const actualAmt=actualQty*p;cash+=actualAmt;h.qty-=actualQty;st+=actualAmt;income=Math.min(100,income+1.5);if(h.qty<0.0001)delete holdings[sym];}
+  }
+  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;income=Math.max(0,income-2);
+  orders={};turn++;
+  // 20턴 종료 체크
+  if(turn>MAX_TURNS){endGame('finished');return;}
+  simulateNextTurn();
+  for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
+  if(getTotalAsset()<=0){endGame('bankrupt');return;}
+  resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
+  if(bt>0||st>0)showSysNews(`✅ 턴${turn}: 매수$${bt}/매도$${st}/인플레-$${inf.toFixed(1)}`);
+  else showSysNews(`턴${turn}: 주문없음. 인플레-$${inf.toFixed(1)}`);
+}
+
+// ═══ 자산 ═══
+function getHV(){let t=0;for(const[sym,h]of Object.entries(holdings))if(h.qty>0&&!delistedSet.has(sym))t+=h.qty*(prices[sym]||0);return t;}
+function getTotalAsset(){return cash+getHV();}
+
+// ═══ 헤더 ═══
+function updateHeader(){
+  const hv=getHV(),tot=getTotalAsset(),pp=(tot-START_CASH)/START_CASH*100;
+  document.getElementById('s-cash').textContent='$'+cash.toFixed(0);
+  document.getElementById('s-hold').textContent='$'+hv.toFixed(0);
+  document.getElementById('s-total').textContent='$'+tot.toFixed(0);
+  const pe=document.getElementById('s-pnl');
+  pe.textContent=(pp>=0?'+':'')+pp.toFixed(1)+'%';pe.className='stat-val '+(pp>=0?'profit':'loss');
+  // 소득수준
+  const pct=Math.max(0,Math.min(100,income));
+  document.getElementById('ig-fill').style.width=pct+'%';
+  document.getElementById('ig-pct').textContent=Math.round(pct)+'%';
+  let col,label;
+  if(pct<15){col='#ef4444';label='극빈층';}else if(pct<30){col='#f87171';label='빈곤층';}
+  else if(pct<45){col='#fb923c';label='저소득층';}else if(pct<60){col='#f59e0b';label='중산층';}
+  else if(pct<75){col='#22c55e';label='고소득층';}else if(pct<90){col='#3b82f6';label='상류층';}
+  else{col='#a78bfa';label='최상류층';}
+  document.getElementById('ig-fill').style.background=col;
+  document.getElementById('ig-grade').textContent=label;document.getElementById('ig-grade').style.color=col;
+}
+
+// ═══ 턴 게이지 ═══
+function updateTurnGauge(){
+  const pct=Math.min(100,turn/MAX_TURNS*100);
+  document.getElementById('turn-text').textContent=`턴 ${turn} / ${MAX_TURNS}`;
+  document.getElementById('s-turn').textContent=turn;
+  const fill=document.getElementById('turn-fill');
+  fill.style.width=pct+'%';
+  fill.className='turn-gauge-fill'+(pct>=80?' ending':'');
+}
+
+// ═══ 타이머 ═══
+function resetTimer(){
+  timeLeft=TURN_TIME;clearInterval(timerInterval);updateTimerDisplay();
+  timerInterval=setInterval(()=>{if(!gameRunning)return;timeLeft--;updateTimerDisplay();
+    if(timeLeft<=0){showSysNews('⏰ 시간초과! 자동제출');submitOrders();}
+  },1000);
+}
+function updateTimerDisplay(){
+  const el=document.getElementById('s-timer');el.textContent=timeLeft;
+  const box=document.getElementById('timer-box');
+  if(timeLeft<=10){el.className='timer-val urgent';box.style.borderColor='var(--loss)';box.style.boxShadow='0 0 30px rgba(239,68,68,.3)';}
+  else if(timeLeft<=30){el.className='timer-val';el.style.color='#fb923c';box.style.borderColor='#fb923c';box.style.boxShadow='0 0 20px rgba(251,146,60,.2)';}
+  else{el.className='timer-val';el.style.color='';box.style.borderColor='var(--accent)';box.style.boxShadow='0 0 20px rgba(245,158,11,.15)';}
+}
+
+// ═══ 시작/끝 ═══
+function startGame(){
+  cash=START_CASH;holdings={};orders={};turn=1;income=50;inflTotal=0;
+  delistedSet.clear();scamTimers={};activeScam=null;currentNews=[];newsEffects={};
+  generateRandomCoins();gameRunning=true;initPrices();
+  for(const c of COINS){const hist=[];let p=prices[c.sym];
+    for(let i=0;i<15;i++){p=Math.max(1,p*(1+(Math.random()*.1-.05)));hist.push(p);}
+    hist.push(prices[c.sym]);priceHist[c.sym]=hist;}
+  generateNews();
+  document.getElementById('overlay').classList.add('hidden');
+  renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();resetTimer();
+  showSysNews('🎮 게임시작! 20턴 안에 최대 수익을 올리세요!');
+}
+// ═══ 정규분포 상위 % 계산 ═══
+// 수익률 기준: 평균 0%, 표준편차 15% (20턴 시뮬 가정)
+function pnlToTopPercent(pnl){
+  const mean=0,sd=15;
+  const z=(pnl-mean)/sd;
+  // 표준정규 CDF 근사 (Abramowitz & Stegun)
+  function normCDF(x){
+    if(x<-8)return 0;if(x>8)return 1;
+    const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+    const sign=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);
+    const t=1/(1+p*x);const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+    return 0.5*(1+sign*y);
+  }
+  const cdf=normCDF(z);
+  const topPct=Math.round((1-cdf)*100);
+  return Math.max(1,Math.min(100,topPct));
+}
+
+const RANK_COMMENTS={
+1:'🏆 역사에 이름을 남길 전설적 투자자! 당신은 진정한 신이다.',
+2:'👑 시장의 왕! 워렌 버핏이 당신에게 조언을 구할 레벨.',
+3:'🌟 천재적 직감! 당신의 매매 일지는 교과서가 될 것이다.',
+4:'💎 다이아몬드 핸즈의 끝판왕. 흔들림 없는 철의 심장.',
+5:'🔥 전설적인 수익률! 펀드매니저들이 줄 서서 스카우트할 것이다.',
+6:'🦅 독수리의 눈으로 시장을 꿰뚫었다. 경이로운 판단력!',
+7:'⚡ 번개같은 매매 타이밍! 프로 트레이더 뺨치는 실력.',
+8:'🎯 모든 판단이 정확했다. 당신은 시장의 저격수.',
+9:'🚀 로켓처럼 치솟은 수익! 대단한 성과를 거뒀다.',
+10:'💰 상위 10%! 탁월한 투자 감각의 소유자.',
+11:'🏅 누가 뭐래도 엘리트 투자자. 자부심을 가져도 좋다.',
+12:'📈 놀라운 성과! 시장을 읽는 눈이 확실히 있다.',
+13:'🎖️ 대부분의 펀드매니저보다 나은 수익률. 대단하다!',
+14:'✨ 빛나는 실적! 투자 재능이 확실히 보인다.',
+15:'🌈 위기를 기회로 바꾼 현명한 투자자.',
+16:'🏹 정확한 타이밍의 달인! 매수 매도가 절묘했다.',
+17:'💪 강철 멘탈로 시장 변동을 이겨냈다. 인상적!',
+18:'🔮 시장 예측력이 뛰어나다. 미래가 기대되는 투자자.',
+19:'🎪 롤러코스터 같은 시장에서 훌륭히 살아남았다!',
+20:'📊 상위 20%! 꽤 괜찮은 투자 실력이다.',
+21:'🍀 운과 실력이 모두 따라준 좋은 결과.',
+22:'⭐ 인상적인 수익! 동료들 사이에서 자랑할 만하다.',
+23:'🎯 적절한 분산투자와 타이밍. 교과서적 전략!',
+24:'🔑 핵심을 짚는 투자 감각이 있다.',
+25:'📱 당신의 포트폴리오를 SNS에 자랑해도 좋다.',
+26:'🌿 꾸준히 성장하는 건전한 투자 스타일.',
+27:'🎢 파도를 탄 서퍼처럼 시장을 즐겼다!',
+28:'🧭 나침반 같은 투자 방향 감각을 갖고 있다.',
+29:'🏃 대다수보다 앞서 나가는 민첩한 투자자.',
+30:'👍 상위 30%! 평균을 훌쩍 넘는 좋은 결과.',
+31:'📘 기본기가 탄탄한 투자 스타일이 보인다.',
+32:'🌤️ 맑은 날씨처럼 밝은 성적표.',
+33:'🎵 리듬감 있는 매매! 시장의 박자를 읽었다.',
+34:'🧩 퍼즐 조각을 맞추듯 전략적인 투자를 했다.',
+35:'🌱 성장 가능성이 큰 투자자! 경험이 쌓이면 더 좋아질 것.',
+36:'🎈 무난하면서도 나쁘지 않은 결과. 계속 도전하자!',
+37:'🔧 조금만 더 다듬으면 훌륭한 투자자가 될 수 있다.',
+38:'🍵 차분하게 잘 버텼다. 멘탈 관리가 좋다.',
+39:'🌊 파도에 휩쓸리지 않고 자기 페이스를 유지했다.',
+40:'📗 나쁘지 않다! 평균 이상의 성과.',
+41:'🎭 변동성 속에서 나름대로 잘 해냈다.',
+42:'🧮 계산적인 접근이 어느 정도 효과를 봤다.',
+43:'🌻 햇볕 아래 피어나는 해바라기처럼, 성장 중!',
+44:'🎲 약간의 운이 따라준 결과. 다음엔 실력으로!',
+45:'🛡️ 방어적 투자로 자산을 잘 지켰다.',
+46:'⚖️ 균형 잡힌 포트폴리오를 유지하려 노력한 흔적.',
+47:'🍃 바람에 흔들려도 뿌리는 단단했다.',
+48:'📐 정석적인 투자. 크게 잃지 않은 것이 장점.',
+49:'🎣 미끼를 물기도 하고, 피하기도 했다.',
+50:'📊 정확히 중간! 반은 이기고 반은 배우는 중.',
+51:'🌥️ 흐린 날씨 같은 성적. 맑아질 가능성은 있다.',
+52:'🔍 분석은 했으나 실행이 아쉬웠던 턴들이 있다.',
+53:'🎪 시장이라는 서커스에서 나름 버텼다.',
+54:'🧊 냉정함을 유지하려 했으나 가끔 흔들렸다.',
+55:'📦 보수적인 투자가 양날의 검이 되었다.',
+56:'🌧️ 약간 아쉬운 결과. 다음엔 뉴스를 더 잘 읽어보자.',
+57:'🐢 거북이 전략... 느리지만 안전했을까?',
+58:'🎭 매수와 매도 사이에서 많이 고민한 흔적이 보인다.',
+59:'🧪 실험적인 투자를 몇 번 했는데, 결과는 애매.',
+60:'📉 평균 이하지만 아직 괜찮다. 경험이 재산!',
+61:'🌫️ 안개 속을 걷는 듯한 투자였다.',
+62:'🎯 목표는 좋았으나 과녁이 자꾸 움직였다.',
+63:'🧩 퍼즐의 몇 조각이 빠진 느낌의 전략.',
+64:'🍂 가을 낙엽처럼 자산이 살짝 떨어졌다.',
+65:'📝 복기가 필요한 턴이 꽤 있었다.',
+66:'🚶 천천히 걷다 보니 목적지에서 좀 멀어졌다.',
+67:'🌬️ 바람의 방향을 잘못 읽은 턴이 몇 번 있었다.',
+68:'🎈 풍선이 새는 것처럼 조금씩 빠져나갔다.',
+69:'🔮 예측이 빗나간 횟수가 좀 많았다.',
+70:'📊 하위 30%. 뉴스 분석에 더 집중해보자.',
+71:'🌊 파도에 좀 휩쓸린 느낌. 다음엔 버텨보자!',
+72:'🎲 운이 따라주지 않았다. 탓할 건 하늘뿐.',
+73:'🧗 오르막이 힘들었지만 포기하지 않은 건 대단하다.',
+74:'🌧️ 비 오는 날의 투자... 우산이 필요했다.',
+75:'📉 하락장에 고전했다. 다음엔 헤지 전략을!',
+76:'🎭 군중심리에 몇 번 휩쓸린 것 같다.',
+77:'🧊 냉정함을 잃은 순간들이 결과에 영향을 줬다.',
+78:'🎪 시장의 광대에게 당한 느낌이 든다면, 당신만 그런 게 아니다.',
+79:'📦 타이밍이 전반적으로 아쉬웠다.',
+80:'😓 상위 80%... 수업료라고 생각하자.',
+81:'🌪️ 폭풍 같은 시장에서 많이 흔들렸다.',
+82:'📝 실수에서 배우는 것이 진짜 투자 공부다.',
+83:'🎢 롤러코스터를 타다 멀미가 좀 났을 것 같다.',
+84:'🧮 계산이 자꾸 어긋났다. 연습이 더 필요하다.',
+85:'🌑 어두운 터널이었지만 끝은 있다!',
+86:'🎣 물고기는 도망가고 미끼만 남았다.',
+87:'📉 매수 타이밍과 매도 타이밍 모두 재점검이 필요.',
+88:'🚨 위험 신호를 무시한 대가가 좀 컸다.',
+89:'🌋 화산 위에서 투자한 느낌이었을 것이다.',
+90:'😰 하위 10%... 하지만 파산하지 않은 게 어디야!',
+91:'🎰 투자가 아니라 도박이 되어버린 순간들...',
+92:'📉 뉴스를 정반대로 해석한 건 아닌지 점검해보자.',
+93:'🧊 얼음 위에서 미끄러진 느낌의 투자였다.',
+94:'🌊 큰 파도에 정면으로 맞서다 좀 많이 젖었다.',
+95:'📦 거의 모든 판단이 엇나갔다. 역발상이면 1등이었을 텐데!',
+96:'🎭 스캠 코인에 당한 건 아닌지... 포트폴리오를 돌아보자.',
+97:'💸 자산이 녹아내렸다... 인버스로 했으면 대박이었다.',
+98:'🚨 투자 감옥에서 이제 막 출소한 느낌.',
+99:'🆘 구조 요청! 누군가 이 투자자에게 도움의 손길을!',
+100:'💀 전설적인 역대급 손실... 오히려 이 정도면 재능이다.'
+};
+
+function drawNormalCurve(canvas,topPct){
+  const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
+  ctx.clearRect(0,0,w,h);
+  const pad={l:35,r:15,t:10,b:28},gw=w-pad.l-pad.r,gh=h-pad.t-pad.b;
+  // 정규분포 PDF
+  function normPDF(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);}
+  const zMin=-3.2,zMax=3.2;
+  // 배경 그리드
+  ctx.strokeStyle='#1e2a3a';ctx.lineWidth=0.5;
+  for(let i=0;i<=4;i++){const y=pad.t+gh*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gw,y);ctx.stroke();}
+  // 곡선 아래 채우기 (전체: 어두운 색)
+  ctx.beginPath();
+  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(pad.l+gw,pad.t+gh);ctx.lineTo(pad.l,pad.t+gh);ctx.closePath();
+  ctx.fillStyle='rgba(107,114,128,0.15)';ctx.fill();
+  // 내 위치의 z값 (상위 topPct% → z)
+  function invNormCDF(p){
+    // 근사 역정규분포
+    if(p<=0)return -3.2;if(p>=1)return 3.2;
+    const a=[0,-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239e0];
+    const b=[0,-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
+    const c=[0,-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838e0,-2.549732539343734e0,4.374664141464968e0,2.938163982698783e0];
+    const d=[0,7.784695709041462e-3,3.224671290700398e-1,2.445134137142996e0,3.754408661907416e0];
+    const pLow=0.02425,pHigh=1-pLow;let q,r;
+    if(p<pLow){q=Math.sqrt(-2*Math.log(p));return(((((c[1]*q+c[2])*q+c[3])*q+c[4])*q+c[5])*q+c[6])/((((d[1]*q+d[2])*q+d[3])*q+d[4])*q+1);}
+    else if(p<=pHigh){q=p-0.5;r=q*q;return(((((a[1]*r+a[2])*r+a[3])*r+a[4])*r+a[5])*r+a[6])*q/(((((b[1]*r+b[2])*r+b[3])*r+b[4])*r+b[5])*r+1);}
+    else{q=Math.sqrt(-2*Math.log(1-p));return-(((((c[1]*q+c[2])*q+c[3])*q+c[4])*q+c[5])*q+c[6])/((((d[1]*q+d[2])*q+d[3])*q+d[4])*q+1);}
+  }
+  const myZ=invNormCDF(1-topPct/100);
+  // 내 위치보다 오른쪽(상위) 영역 강조
+  ctx.beginPath();
+  const startI=Math.max(0,Math.floor((myZ-zMin)/(zMax-zMin)*200));
+  for(let i=startI;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+    i===startI?ctx.moveTo(x,pad.t+gh)&&ctx.lineTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(pad.l+gw,pad.t+gh);ctx.closePath();
+  const hueColor=topPct<=10?'rgba(34,197,94,0.35)':topPct<=30?'rgba(59,130,246,0.3)':topPct<=50?'rgba(245,158,11,0.25)':topPct<=70?'rgba(251,146,60,0.25)':'rgba(239,68,68,0.25)';
+  ctx.fillStyle=hueColor;ctx.fill();
+  // 곡선 선
+  ctx.beginPath();ctx.strokeStyle='#6b7280';ctx.lineWidth=2;
+  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+  // 내 위치 수직선
+  const myX=pad.l+((myZ-zMin)/(zMax-zMin))*gw,myY=pad.t+gh-normPDF(myZ)/0.42*gh;
+  ctx.beginPath();ctx.strokeStyle=topPct<=10?'#22c55e':topPct<=30?'#3b82f6':topPct<=50?'#f59e0b':topPct<=70?'#fb923c':'#ef4444';
+  ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.moveTo(myX,pad.t+gh);ctx.lineTo(myX,myY);ctx.stroke();ctx.setLineDash([]);
+  // 내 위치 점
+  ctx.beginPath();ctx.arc(myX,myY,5,0,Math.PI*2);ctx.fillStyle=ctx.strokeStyle;ctx.fill();
+  ctx.beginPath();ctx.arc(myX,myY,8,0,Math.PI*2);ctx.strokeStyle=ctx.fillStyle+'80';ctx.lineWidth=2;ctx.stroke();
+  // "나" 라벨
+  ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
+  ctx.fillText('▼ 나',myX,myY-12);
+  // 하단 축 라벨
+  ctx.fillStyle='#4b5563';ctx.font='10px sans-serif';ctx.textAlign='center';
+  const labels=['하위','','','중간','','','상위'];
+  for(let i=0;i<7;i++){ctx.fillText(labels[i],pad.l+gw*i/6,h-4);}
+  // 좌측 Y축 라벨
+  ctx.fillStyle='#374151';ctx.font='9px sans-serif';ctx.textAlign='right';
+  ctx.fillText('많음',pad.l-5,pad.t+12);ctx.fillText('적음',pad.l-5,pad.t+gh);
+}
+
+function endGame(reason){
+  gameRunning=false;clearInterval(timerInterval);
+  const tot=getTotalAsset(),pnl=(tot-START_CASH)/START_CASH*100;
+  const topPct=reason==='bankrupt'?100:pnlToTopPercent(pnl);
+  const comment=RANK_COMMENTS[topPct]||RANK_COMMENTS[50];
+  const rankColor=topPct<=5?'#a78bfa':topPct<=10?'#22c55e':topPct<=25?'#3b82f6':topPct<=50?'#f59e0b':topPct<=75?'#fb923c':'#ef4444';
+  const ov=document.getElementById('overlay');ov.classList.remove('hidden');
+  ov.querySelector('h1').textContent=reason==='bankrupt'?'💸 파산!':reason==='finished'?'🏁 게임 종료!':'게임 종료';
+  const rc=document.getElementById('result-card');rc.style.display='block';
+  rc.innerHTML=`<div class="result-title" style="color:${pnl>=0?'var(--profit)':'var(--loss)'}">${reason==='bankrupt'?'파산':'$'+tot.toFixed(0)} <span style="font-size:18px">(${pnl>=0?'+':''}${pnl.toFixed(1)}%)</span></div>
+    <div class="result-rank" style="color:${rankColor}">상위 ${topPct}<span class="pct">%</span></div>
+    <div class="result-comment" style="color:${rankColor}">${comment}</div>
+    <canvas class="result-curve" id="result-curve" width="420" height="160"></canvas>
+    <div class="result-stats">
+      최종 자산: $${tot.toFixed(0)} / 현금: $${cash.toFixed(0)} / 코인: $${getHV().toFixed(0)}<br>
+      총 ${Math.min(turn,MAX_TURNS)}턴 / 인플레이션 누적: -$${inflTotal.toFixed(0)}
+    </div>`;
+  document.getElementById('start-btn').textContent='다시 시작';
+  ov.querySelector('.desc').style.display='none';
+  // 캔버스 그리기 (DOM 삽입 후, 모바일 리사이즈 포함)
+  setTimeout(()=>{
+    const cv=document.getElementById('result-curve');
+    if(window.innerWidth<=768){
+      const w=Math.min(420,rc.offsetWidth-32);
+      cv.width=w;cv.height=Math.round(w*160/420);
+    }
+    drawNormalCurve(cv,topPct);
+  },80);
+}
+
+function showSysNews(msg){
+  const el=document.getElementById('sys-news');el.textContent=msg;el.classList.remove('hidden');
+  clearTimeout(el._t);el._t=setTimeout(()=>el.classList.add('hidden'),4000);
+}
+
+document.getElementById('start-btn').addEventListener('click',()=>startGame());
+
+// ═══ 모바일 사이드바 토글 ═══
+function toggleSidebar(){
+  const sb=document.querySelector('.sidebar'),ov=document.getElementById('sidebar-overlay');
+  sb.classList.toggle('open');ov.classList.toggle('show');
+}
+
+// 결과 캔버스 모바일 리사이즈
+window.addEventListener('resize',()=>{
+  const cv=document.getElementById('result-curve');
+  if(cv&&cv.parentElement&&cv.style.display!=='none'){
+    const w=Math.min(420,cv.parentElement.offsetWidth-32);
+    cv.width=w;cv.height=Math.round(w*160/420);
+  }
+});
+</script>
+</body>
+</html>

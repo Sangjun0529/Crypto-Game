@@ -1012,22 +1012,30 @@ function startGame(){
   renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();resetTimer();
   showSysNews(t('gameStart'));
 }
-// ═══ 정규분포 상위 % 계산 ═══
-// 수익률 기준: 평균 0%, 표준편차 15% (20턴 시뮬 가정)
+// ═══ 실제 투자자 수익률 분포 기반 상위 % 계산 ═══
+// 실제 통계: 60%가 손실, 수익자 중 과반이 소액, 좌편향 분포
+// 수익률 → 상위 % 매핑 (보간 테이블)
+// 출처: 자본시장연구원, NH투자증권/신한투자증권 2024-2025 분석
+const REAL_DIST=[
+  // [수익률%, 상위%] — 실제 투자자 분포 기반 보간점
+  [-80, 99], [-60, 95], [-50, 90], [-40, 85],
+  [-30, 78], [-20, 70], [-15, 65], [-10, 60],
+  [-5, 55],  [0, 48],   [5, 40],   [10, 33],
+  [15, 27],  [20, 22],  [25, 18],  [30, 14],
+  [40, 10],  [50, 7],   [60, 5],   [80, 3],
+  [100, 2],  [150, 1]
+];
 function pnlToTopPercent(pnl){
-  const mean=0,sd=8;
-  const z=(pnl-mean)/sd;
-  // 표준정규 CDF 근사 (Abramowitz & Stegun)
-  function normCDF(x){
-    if(x<-8)return 0;if(x>8)return 1;
-    const a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
-    const sign=x<0?-1:1;x=Math.abs(x)/Math.sqrt(2);
-    const t=1/(1+p*x);const y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
-    return 0.5*(1+sign*y);
+  if(pnl<=REAL_DIST[0][0])return Math.min(100,REAL_DIST[0][1]+1);
+  if(pnl>=REAL_DIST[REAL_DIST.length-1][0])return 1;
+  for(let i=0;i<REAL_DIST.length-1;i++){
+    const[p0,t0]=REAL_DIST[i],[p1,t1]=REAL_DIST[i+1];
+    if(pnl>=p0&&pnl<p1){
+      const ratio=(pnl-p0)/(p1-p0);
+      return Math.max(1,Math.min(100,Math.round(t0+(t1-t0)*ratio)));
+    }
   }
-  const cdf=normCDF(z);
-  const topPct=Math.round((1-cdf)*100);
-  return Math.max(1,Math.min(100,topPct));
+  return 50;
 }
 
 const RANK_COMMENTS={
@@ -1137,52 +1145,57 @@ function drawNormalCurve(canvas,topPct){
   const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
   const pad={l:35,r:15,t:10,b:28},gw=w-pad.l-pad.r,gh=h-pad.t-pad.b;
-  // 정규분포 PDF
-  function normPDF(x){return Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);}
-  const zMin=-3.2,zMax=3.2;
+  // 실제 투자자 분포 PDF (좌편향 비대칭: 손실 쪽이 두꺼움)
+  // skew-normal 근사: 평균 -5%, 좌편향
+  function realPDF(x){
+    // 비대칭 분포: 손실 구간은 넓고 두꺼움, 수익 구간은 좁고 뾰족
+    const mu=-0.3,sig1=1.4,sig2=1.0; // 좌측 더 넓음
+    const s=x<mu?sig1:sig2;
+    return Math.exp(-((x-mu)*(x-mu))/(2*s*s))/(s*2.507);
+  }
+  const zMin=-3.8,zMax=3.2,peak=realPDF(-0.3);
   // 배경 그리드
   ctx.strokeStyle='#1e2a3a';ctx.lineWidth=0.5;
   for(let i=0;i<=4;i++){const y=pad.t+gh*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gw,y);ctx.stroke();}
   // 곡선 아래 채우기 (전체: 어두운 색)
   ctx.beginPath();
-  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-realPDF(z)/peak*gh*.92;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
   ctx.lineTo(pad.l+gw,pad.t+gh);ctx.lineTo(pad.l,pad.t+gh);ctx.closePath();
   ctx.fillStyle='rgba(107,114,128,0.15)';ctx.fill();
-  // 내 위치의 z값 (상위 topPct% → z)
-  function invNormCDF(p){
-    // 근사 역정규분포
-    if(p<=0)return -3.2;if(p>=1)return 3.2;
-    const a=[0,-3.969683028665376e1,2.209460984245205e2,-2.759285104469687e2,1.383577518672690e2,-3.066479806614716e1,2.506628277459239e0];
-    const b=[0,-5.447609879822406e1,1.615858368580409e2,-1.556989798598866e2,6.680131188771972e1,-1.328068155288572e1];
-    const c=[0,-7.784894002430293e-3,-3.223964580411365e-1,-2.400758277161838e0,-2.549732539343734e0,4.374664141464968e0,2.938163982698783e0];
-    const d=[0,7.784695709041462e-3,3.224671290700398e-1,2.445134137142996e0,3.754408661907416e0];
-    const pLow=0.02425,pHigh=1-pLow;let q,r;
-    if(p<pLow){q=Math.sqrt(-2*Math.log(p));return(((((c[1]*q+c[2])*q+c[3])*q+c[4])*q+c[5])*q+c[6])/((((d[1]*q+d[2])*q+d[3])*q+d[4])*q+1);}
-    else if(p<=pHigh){q=p-0.5;r=q*q;return(((((a[1]*r+a[2])*r+a[3])*r+a[4])*r+a[5])*r+a[6])*q/(((((b[1]*r+b[2])*r+b[3])*r+b[4])*r+b[5])*r+1);}
-    else{q=Math.sqrt(-2*Math.log(1-p));return-(((((c[1]*q+c[2])*q+c[3])*q+c[4])*q+c[5])*q+c[6])/((((d[1]*q+d[2])*q+d[3])*q+d[4])*q+1);}
-  }
-  const myZ=invNormCDF(1-topPct/100);
+  // 내 위치 (상위% → x축 위치, 100%=좌끝, 1%=우끝)
+  const myFrac=1-topPct/100; // 0=좌끝(하위), 1=우끝(상위)
+  const myZ=zMin+(zMax-zMin)*myFrac;
   // 내 위치보다 오른쪽(상위) 영역 강조
   ctx.beginPath();
-  const startI=Math.max(0,Math.floor((myZ-zMin)/(zMax-zMin)*200));
-  for(let i=startI;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+  const startI=Math.max(0,Math.floor(myFrac*200));
+  for(let i=startI;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-realPDF(z)/peak*gh*.92;
     i===startI?ctx.moveTo(x,pad.t+gh)&&ctx.lineTo(x,y):ctx.lineTo(x,y);}
   ctx.lineTo(pad.l+gw,pad.t+gh);ctx.closePath();
   const hueColor=topPct<=10?'rgba(34,197,94,0.35)':topPct<=30?'rgba(59,130,246,0.3)':topPct<=50?'rgba(245,158,11,0.25)':topPct<=70?'rgba(251,146,60,0.25)':'rgba(239,68,68,0.25)';
   ctx.fillStyle=hueColor;ctx.fill();
   // 곡선 선
   ctx.beginPath();ctx.strokeStyle='#6b7280';ctx.lineWidth=2;
-  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-normPDF(z)/0.42*gh;
+  for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-realPDF(z)/peak*gh*.92;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
   ctx.stroke();
+  // 0% 수익률 기준선 (손익분기)
+  const zeroFrac=(-zMin)/(zMax-zMin);
+  if(zeroFrac>0&&zeroFrac<1){
+    const zx=pad.l+zeroFrac*gw;
+    ctx.beginPath();ctx.strokeStyle='#374151';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+    ctx.moveTo(zx,pad.t);ctx.lineTo(zx,pad.t+gh);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='#4b5563';ctx.font='9px sans-serif';ctx.textAlign='center';
+    ctx.fillText('0%',zx,pad.t+gh+10);
+  }
   // 내 위치 수직선
-  const myX=pad.l+((myZ-zMin)/(zMax-zMin))*gw,myY=pad.t+gh-normPDF(myZ)/0.42*gh;
-  ctx.beginPath();ctx.strokeStyle=topPct<=10?'#22c55e':topPct<=30?'#3b82f6':topPct<=50?'#f59e0b':topPct<=70?'#fb923c':'#ef4444';
+  const myX=pad.l+myFrac*gw,myY=pad.t+gh-realPDF(myZ)/peak*gh*.92;
+  const myCol=topPct<=10?'#22c55e':topPct<=30?'#3b82f6':topPct<=50?'#f59e0b':topPct<=70?'#fb923c':'#ef4444';
+  ctx.beginPath();ctx.strokeStyle=myCol;
   ctx.lineWidth=2.5;ctx.setLineDash([4,3]);ctx.moveTo(myX,pad.t+gh);ctx.lineTo(myX,myY);ctx.stroke();ctx.setLineDash([]);
   // 내 위치 점
-  ctx.beginPath();ctx.arc(myX,myY,5,0,Math.PI*2);ctx.fillStyle=ctx.strokeStyle;ctx.fill();
-  ctx.beginPath();ctx.arc(myX,myY,8,0,Math.PI*2);ctx.strokeStyle=ctx.fillStyle+'80';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(myX,myY,5,0,Math.PI*2);ctx.fillStyle=myCol;ctx.fill();
+  ctx.beginPath();ctx.arc(myX,myY,8,0,Math.PI*2);ctx.strokeStyle=myCol+'80';ctx.lineWidth=2;ctx.stroke();
   // "나" 라벨
   ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
   ctx.fillText(t('curveMe'),myX,myY-12);

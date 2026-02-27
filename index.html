@@ -356,7 +356,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
         <span class="income-grade" id="ig-grade">중산층</span>
         <span class="income-pct" id="ig-pct">50%</span>
       </div>
-      <div class="income-ticks"><span>극빈</span><span>빈곤</span><span>저소득</span><span>중산</span><span>고소득</span><span>상류</span></div>
+      <div class="income-ticks"><span>극빈</span><span>빈곤</span><span>저소득</span><span>중산</span><span>고소득</span><span>상류</span><span>최상류</span></div>
     </div>
 
     <!-- 뉴스 -->
@@ -437,7 +437,7 @@ const T={
     scamNew:'⚠️ 신규 상장: %n(%s) — 스캠 주의!',delisted:'💀 %s 상장폐지!',
     adCountdown:'%s초 후 결과를 확인할 수 있습니다...',adLoading:'결과를 불러오는 중...',
     grades:['극빈층','빈곤층','저소득층','중산층','고소득층','상류층','최상류층'],
-    gradeTicks:['극빈','빈곤','저소득','중산','고소득','상류'],
+    gradeTicks:['극빈','빈곤','저소득','중산','고소득','상류','최상류'],
     curveLow:'하위',curveMid:'중간',curveHigh:'상위',curveMany:'많음',curveFew:'적음',curveMe:'▼ 나'
   },
   en:{
@@ -458,7 +458,7 @@ const T={
     scamNew:'⚠️ New listing: %n(%s) — Scam alert!',delisted:'💀 %s delisted!',
     adCountdown:'Results in %s seconds...',adLoading:'Loading results...',
     grades:['Extreme Poverty','Poor','Low Income','Middle Class','Upper Middle','Upper Class','Elite'],
-    gradeTicks:['Poor','Low','Mid-Low','Middle','Upper','Elite'],
+    gradeTicks:['Poor','Low','Mid-Low','Middle','Upper','Elite','Top'],
     curveLow:'Low',curveMid:'Mid',curveHigh:'Top',curveMany:'Many',curveFew:'Few',curveMe:'▼ Me'
   }
 };
@@ -917,11 +917,12 @@ function submitOrders(){
   for(const[sym,amt]of Object.entries(orders)){
     if(!amt||delistedSet.has(sym))continue;const p=prices[sym];if(!p||p<=0)continue;
     if(amt>0){if(amt>cash)continue;cash-=amt;const coinQty=amt/p;if(!holdings[sym])holdings[sym]={qty:0,totalCost:0};
-      holdings[sym].totalCost+=amt;holdings[sym].qty+=coinQty;bt+=amt;income=Math.min(100,income+1);
+      holdings[sym].totalCost+=amt;holdings[sym].qty+=coinQty;bt+=amt;
     }else{const sa=Math.abs(amt),h=holdings[sym];if(!h)continue;const sellQty=sa/p;if(sellQty>h.qty*1.001)continue;
-      const actualQty=Math.min(sellQty,h.qty);const actualAmt=actualQty*p;cash+=actualAmt;h.qty-=actualQty;st+=actualAmt;income=Math.min(100,income+1.5);if(h.qty<0.0001)delete holdings[sym];}
+      const actualQty=Math.min(sellQty,h.qty);const actualAmt=actualQty*p;cash+=actualAmt;h.qty-=actualQty;st+=actualAmt;if(h.qty<0.0001)delete holdings[sym];}
   }
-  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;income=Math.max(0,income-2);
+  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
+  updateIncome();
   orders={};turn++;
   // 20턴 종료 체크
   if(turn>MAX_TURNS){endGame('finished');return;}
@@ -937,6 +938,17 @@ function submitOrders(){
 function getHV(){let v=0;for(const[sym,h]of Object.entries(holdings))if(h.qty>0&&!delistedSet.has(sym))v+=h.qty*(prices[sym]||0);return v;}
 function getTotalAsset(){return cash+getHV();}
 
+// ═══ 소득수준 (수익률 기반 실시간) ═══
+// 현실 소득분위 기반: 상위%→소득등급
+// 극빈층(하위20%) | 빈곤층(20~40%) | 저소득층(40~60%) | 중산층(60~80%) | 고소득층(80~90%) | 상류층(90~99%) | 최상류층(99~100%)
+function updateIncome(){
+  const tot=getTotalAsset(),pnl=(tot-START_CASH)/START_CASH*100;
+  // 상위 몇 %인지 (1=최고, 100=최저)
+  const topPct=tot<=0?100:pnlToTopPercent(pnl);
+  // 상위% → 게이지 (상위1%=99, 상위100%=0)
+  income=Math.max(0,Math.min(100,100-topPct));
+}
+
 // ═══ 헤더 ═══
 function updateHeader(){
   const hv=getHV(),tot=getTotalAsset(),pp=(tot-START_CASH)/START_CASH*100;
@@ -945,14 +957,18 @@ function updateHeader(){
   document.getElementById('s-total').textContent='$'+tot.toFixed(0);
   const pe=document.getElementById('s-pnl');
   pe.textContent=(pp>=0?'+':'')+pp.toFixed(1)+'%';pe.className='stat-val '+(pp>=0?'profit':'loss');
-  // 소득수준
+  // 소득수준 — 현실 소득분위 기반 등급
   const pct=Math.max(0,Math.min(100,income));
   document.getElementById('ig-fill').style.width=pct+'%';
   document.getElementById('ig-pct').textContent=Math.round(pct)+'%';
   const gr=t('grades');let col,label;
-  if(pct<15){col='#ef4444';label=gr[0];}else if(pct<30){col='#f87171';label=gr[1];}
-  else if(pct<45){col='#fb923c';label=gr[2];}else if(pct<60){col='#f59e0b';label=gr[3];}
-  else if(pct<75){col='#22c55e';label=gr[4];}else if(pct<90){col='#3b82f6';label=gr[5];}
+  // 현실 분포: 극빈(0~20) 빈곤(20~40) 저소득(40~60) 중산(60~80) 고소득(80~90) 상류(90~99) 최상류(99~100)
+  if(pct<20){col='#ef4444';label=gr[0];}
+  else if(pct<40){col='#f87171';label=gr[1];}
+  else if(pct<60){col='#fb923c';label=gr[2];}
+  else if(pct<80){col='#f59e0b';label=gr[3];}
+  else if(pct<90){col='#22c55e';label=gr[4];}
+  else if(pct<99){col='#3b82f6';label=gr[5];}
   else{col='#a78bfa';label=gr[6];}
   document.getElementById('ig-fill').style.background=col;
   document.getElementById('ig-grade').textContent=label;document.getElementById('ig-grade').style.color=col;

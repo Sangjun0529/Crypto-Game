@@ -20,6 +20,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .stat-val.profit{color:var(--profit);}
 .stat-val.loss{color:var(--loss);}
 
+/* ─── 언어 토글 ─── */
+.lang-toggle{display:flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;font-size:12px;font-weight:700;user-select:none;}
+.lang-toggle span{padding:5px 10px;transition:all .2s;color:var(--muted);}
+.lang-toggle span.active{background:var(--accent);color:#000;border-radius:18px;}
+
 /* ─── 카운트다운 ─── */
 .timer-box{display:flex;flex-direction:column;align-items:center;background:linear-gradient(135deg,#1a1f2e,#0d1117);padding:10px 28px;border-radius:12px;min-width:120px;border:2px solid var(--accent);box-shadow:0 0 20px rgba(245,158,11,.15);}
 .timer-label{font-size:11px;color:var(--accent);font-weight:600;letter-spacing:1px;text-transform:uppercase;}
@@ -68,6 +73,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .news-tag.bearish{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
 .news-tag.neutral{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
 .news-headline{font-size:13px;font-weight:700;line-height:1.3;margin-bottom:4px;}
+.news-coin-name{color:#60a5fa;font-weight:800;}
 .news-detail{font-size:11px;color:var(--muted);line-height:1.4;}
 .news-coin-badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.08);margin-top:4px;}
 .news-impact{position:absolute;top:8px;right:8px;font-size:11px;font-weight:900;}
@@ -161,6 +167,14 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 /* 시스템 뉴스 (하단) */
 .sys-news{position:fixed;bottom:68px;left:50%;transform:translateX(-50%);background:rgba(17,24,39,.95);border:1px solid var(--border);border-radius:6px;padding:8px 20px;font-size:13px;color:var(--accent);z-index:50;transition:opacity .5s;white-space:nowrap;max-width:700px;}
 .sys-news.hidden{opacity:0;pointer-events:none;}
+
+/* ─── 전면 광고 인터스티셜 ─── */
+#ad-interstitial{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .3s;}
+#ad-interstitial.hidden{opacity:0;pointer-events:none;}
+.ad-container{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;max-width:480px;width:90%;}
+.ad-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.ad-countdown{font-size:14px;color:var(--accent);margin-top:12px;font-weight:600;}
+.ad-slot-box{min-height:250px;display:flex;align-items:center;justify-content:center;background:#0d1117;border-radius:8px;margin:8px 0;}
 
 /* ─── 모바일 사이드바 토글 ─── */
 .mobile-sidebar-toggle{display:none;}
@@ -277,6 +291,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 @media(max-width:480px){
   header{padding:6px 8px;}
   .logo{font-size:15px;}
+  .lang-toggle span{padding:3px 7px;font-size:10px;}
   .header-stats{gap:5px;}
   .stat-label{font-size:8px;}
   .stat-val{font-size:12px;}
@@ -300,8 +315,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 <body>
 
 <header>
-  <div class="logo">크립토 트레이더</div>
+  <div class="logo" id="logo-text">크립토 트레이더</div>
   <div class="header-stats">
+    <div class="lang-toggle" id="lang-toggle" onclick="switchLang()">
+      <span id="lang-ko" class="active">KO</span>
+      <span id="lang-en">EN</span>
+    </div>
     <div class="stat"><div class="stat-label">현금</div><div class="stat-val" id="s-cash">$1,000</div></div>
     <div class="stat"><div class="stat-label">코인자산</div><div class="stat-val" id="s-hold">$0</div></div>
     <div class="stat"><div class="stat-label">총자산</div><div class="stat-val" id="s-total">$1,000</div></div>
@@ -357,6 +376,17 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   <button class="submit-btn" onclick="submitOrders()">📊 주문 제출 → 다음 턴</button>
 </div>
 
+<!-- 전면 광고 인터스티셜 -->
+<div id="ad-interstitial" class="hidden">
+  <div class="ad-container">
+    <div class="ad-label">광고</div>
+    <div class="ad-slot-box">
+      <ins class="adsbygoogle" style="display:block;width:100%;min-height:250px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    </div>
+    <div class="ad-countdown" id="ad-countdown">5초 후 결과를 확인할 수 있습니다...</div>
+  </div>
+</div>
+
 <div id="overlay">
   <h1>크립토 트레이더</h1>
   <div class="desc">
@@ -383,26 +413,224 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 
 <script>
 // ════════════════════════════════════════════════
-// 크립토 트레이더 v9 — 모바일 UI 최적화
+// 크립토 트레이더 v10 — 다국어 지원 + 전면 광고
 // ════════════════════════════════════════════════
 
+let lang='ko';
+
+const T={
+  ko:{
+    logo:'크립토 트레이더',cash:'현금',coinAsset:'코인자산',totalAsset:'총자산',pnl:'수익률',timeLeft:'⏱ 남은 시간',
+    turnProgress:'📊 턴 진행',turnOf:'턴',incomeLevel:'💼 소득수준',newsTitle:'📰 이번 턴 속보',
+    bullish:'호재',bearish:'악재',neutral:'혼합',market:'전체 시장',
+    hold:'보유',buyAll:'전액<br>매수',sellAll:'전액<br>매도',custom:'직접',
+    pendingDefault:'주문을 설정하고 제출하세요.',submit:'📊 주문 제출 → 다음 턴',reset:'초기화',
+    orderReset:'주문 초기화',noHold:'보유분 없음',noTrade:'거래불가',overHold:'초과',noCash:'현금 부족',cashShort:'현금($%s) 부족',overSell:'보유분($%s) 초과',
+    buy:'매수',sell:'매도',pending:'건',
+    gameTitle:'크립토 트레이더',gameDesc:`모의투자 시뮬레이터<br><br>• 8개 가상 코인 차트를 보며 <b>20턴</b> 동안 투자<br>• 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>• 뉴스의 군중심리를 읽고 빠르게 대응하세요!<br>• <b>전액 매수/매도</b>로 한 번에 올인 가능<br>• <b>제출 버튼</b>을 누르면 주문 체결 → 다음 턴<br>• 1턴 = 1분, 시간 내에 주문을 완료하세요<br>• 가만히 있으면 인플레이션으로 현금 가치 ↓<br>• 💀 상장폐지 코인 주의!<br><br><span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>`,
+    startBtn:'게임 시작',restartBtn:'다시 시작',
+    bankrupt:'💸 파산!',finished:'🏁 게임 종료!',endTitle:'게임 종료',bankruptLabel:'파산',
+    topPct:'상위',finalAsset:'최종 자산',cashLabel:'현금',coinLabel:'코인',totalTurn:'총',turnUnit:'턴',inflAccum:'인플레이션 누적',
+    gameStart:'🎮 게임시작! 20턴 안에 최대 수익을 올리세요!',
+    timeOver:'⏰ 시간초과! 자동제출',
+    turnSummary:'✅ 턴%t: 매수$%b/매도$%s/인플레-$%i',turnNoOrder:'턴%t: 주문없음. 인플레-$%i',
+    scamNew:'⚠️ 신규 상장: %n(%s) — 스캠 주의!',delisted:'💀 %s 상장폐지!',
+    adCountdown:'%s초 후 결과를 확인할 수 있습니다...',adLoading:'결과를 불러오는 중...',
+    grades:['극빈층','빈곤층','저소득층','중산층','고소득층','상류층','최상류층'],
+    gradeTicks:['극빈','빈곤','저소득','중산','고소득','상류'],
+    curveLow:'하위',curveMid:'중간',curveHigh:'상위',curveMany:'많음',curveFew:'적음',curveMe:'▼ 나'
+  },
+  en:{
+    logo:'Crypto Trader',cash:'Cash',coinAsset:'Holdings',totalAsset:'Total',pnl:'P&L',timeLeft:'⏱ Time Left',
+    turnProgress:'📊 Turn Progress',turnOf:'Turn',incomeLevel:'💼 Income Level',newsTitle:'📰 Breaking News',
+    bullish:'Bull',bearish:'Bear',neutral:'Mixed',market:'Whole Market',
+    hold:'Hold',buyAll:'Buy<br>All',sellAll:'Sell<br>All',custom:'Custom',
+    pendingDefault:'Set your orders and submit.',submit:'📊 Submit → Next Turn',reset:'Reset',
+    orderReset:'Orders reset',noHold:'No holdings',noTrade:'Not tradable',overHold:'exceeds',noCash:'No cash',cashShort:'Cash($%s) short',overSell:'Holdings($%s) exceeded',
+    buy:'Buy',sell:'Sell',pending:'orders',
+    gameTitle:'Crypto Trader',gameDesc:`Trading Simulator<br><br>• Trade <b>8 virtual coins</b> over <b>20 turns</b><br>• 📰 <b>3 news per turn</b> affect prices<br>• Read crowd sentiment & react fast!<br>• <b>Buy/Sell All</b> to go all-in<br>• Hit <b>Submit</b> to execute & go next<br>• 1 turn = 1 min, complete before time's up<br>• Idle cash loses value to inflation<br>• 💀 Watch out for delisted coins!<br><br><span style="color:var(--buy)">Red = Buy</span> &nbsp;|&nbsp; <span style="color:var(--sell)">Blue = Sell</span>`,
+    startBtn:'Start Game',restartBtn:'Restart',
+    bankrupt:'💸 Bankrupt!',finished:'🏁 Game Over!',endTitle:'Game Over',bankruptLabel:'Bankrupt',
+    topPct:'Top',finalAsset:'Final',cashLabel:'Cash',coinLabel:'Coins',totalTurn:'Total',turnUnit:'turns',inflAccum:'Inflation',
+    gameStart:'🎮 Start! Maximize profits in 20 turns!',
+    timeOver:'⏰ Time up! Auto-submit',
+    turnSummary:'✅ Turn%t: Buy$%b/Sell$%s/Infl-$%i',turnNoOrder:'Turn%t: No orders. Infl-$%i',
+    scamNew:'⚠️ New listing: %n(%s) — Scam alert!',delisted:'💀 %s delisted!',
+    adCountdown:'Results in %s seconds...',adLoading:'Loading results...',
+    grades:['Extreme Poverty','Poor','Low Income','Middle Class','Upper Middle','Upper Class','Elite'],
+    gradeTicks:['Poor','Low','Mid-Low','Middle','Upper','Elite'],
+    curveLow:'Low',curveMid:'Mid',curveHigh:'Top',curveMany:'Many',curveFew:'Few',curveMe:'▼ Me'
+  }
+};
+
+const NEWS_POOL_EN={
+  bullish:[
+    {headline:'{NAME} confirmed listing on 3 major exchanges',detail:'Global TOP3 exchange listing, volume surge expected',impact:.9,crowd:25},
+    {headline:'"{SYM} ecosystem revolution" — Global corp partnership',detail:'Fortune 500 strategic alliance signed',impact:.85,crowd:20},
+    {headline:'{NAME} mainnet upgrade success, 100x TPS boost',detail:'Processing speed dramatically improved',impact:.75,crowd:18},
+    {headline:'Whale wallet spotted buying $5M more {SYM}',detail:'Major investor accumulating for 3 days straight',impact:.7,crowd:15},
+    {headline:'{NAME} selected for gov blockchain project',detail:'Core tech adopted for public infrastructure',impact:.8,crowd:22},
+    {headline:'Famous fund manager: "Buy {SYM} now or regret"',detail:'Wall Street legend gives strong buy signal',impact:.6,crowd:12},
+    {headline:'{NAME} community surpasses 1 million',detail:'Daily active users surging, growth accelerating',impact:.5,crowd:10},
+    {headline:'{SYM} DeFi protocol launch, TVL soaring',detail:'Innovative yield structure drawing massive liquidity',impact:.65,crowd:14},
+    {headline:'Breaking: {NAME} ETF approval imminent',detail:'Regulatory insider: decision this month',impact:.95,crowd:28},
+    {headline:'{SYM} halving D-30, supply squeeze anticipated',detail:'Historical avg 200% gain around halving',impact:.7,crowd:16},
+  ],
+  bearish:[
+    {headline:'URGENT: {NAME} smart contract vulnerability found',detail:'Critical bug report published, hack risk',impact:.9,crowd:-25},
+    {headline:'{SYM} core devs — 3 resign simultaneously',detail:'Internal conflict rumors, roadmap uncertain',impact:.8,crowd:-20},
+    {headline:'Regulators launch full investigation on {NAME}',detail:'Money laundering probe officially opened',impact:.85,crowd:-22},
+    {headline:'{SYM} whale dumps 70% of holdings',detail:'Top 10 wallets selling simultaneously',impact:.75,crowd:-18},
+    {headline:'"{NAME} is a scam" — Famous analyst drops bomb',detail:'1M-follower influencer exposes tech flaws',impact:.65,crowd:-15},
+    {headline:'{SYM} network down for 6 hours',detail:'Node operators leaving, transactions halted',impact:.8,crowd:-20},
+    {headline:'{NAME} partner files for bankruptcy',detail:'Key partner Chapter 11, chain reaction feared',impact:.7,crowd:-16},
+    {headline:'Major exchange considering {SYM} delisting',detail:'Volume crash and regulatory risk cited',impact:.85,crowd:-24},
+    {headline:'{NAME} team token massive unlock',detail:'15% of total supply released, sell pressure',impact:.6,crowd:-12},
+    {headline:'Global rate hike shock hits {SYM}',detail:'Emergency rate hike, risk assets plunge',impact:.7,crowd:-18},
+  ],
+  neutral:[
+    {headline:'{NAME} unveils new roadmap... mixed reactions',detail:'Innovative but feasibility questioned',impact:.4,crowd:0},
+    {headline:'Regulation talks — market cautious on {SYM}',detail:'Major nations discuss crypto framework',impact:.5,crowd:-5},
+    {headline:'{SYM} volume spikes, big event ahead?',detail:'Unusual trading patterns, direction unclear',impact:.3,crowd:0},
+    {headline:'Market sideways, all eyes on {NAME}',detail:'Bulls and bears deadlocked, breakout pending',impact:.2,crowd:0},
+    {headline:'{NAME} founder: "We haven\'t even started"',detail:'Long-term vision emphasized, no short-term catalyst',impact:.35,crowd:3},
+    {headline:'{SYM} vs rivals: tech comparison trending',detail:'Expert media deep dive, pros and cons each',impact:.25,crowd:0},
+  ]
+};
+
+const MARKET_NEWS_POOL_EN={
+  bullish:[
+    {headline:'🌍 Global institutions flood into crypto market',detail:'Pension funds allocating 5% to crypto',impact:.5,crowd:8},
+    {headline:'💰 Crypto market cap hits all-time high',detail:'Bull market, new capital inflows accelerating',impact:.4,crowd:6},
+    {headline:'📱 Big tech announces crypto payment integration',detail:'Real-world use cases expanding, optimism grows',impact:.45,crowd:7},
+  ],
+  bearish:[
+    {headline:'🔻 Fed emergency statement — tightening accelerates',detail:'Risk asset pressure, sentiment freezing',impact:.5,crowd:-8},
+    {headline:'🚨 Major exchange hacked, market panic',detail:'Hundreds of millions drained, trust shattered',impact:.55,crowd:-10},
+    {headline:'⚖️ Major nations push total crypto ban',detail:'Mass exodus fears, panic spreading',impact:.5,crowd:-9},
+  ]
+};
+
+const RANK_COMMENTS_EN={
+1:'🏆 Legendary investor! You are the GOAT of crypto trading!',
+2:'👑 King of the market! Warren Buffett would ask YOU for tips.',
+3:'🌟 Genius instincts! Your trading journal belongs in textbooks.',
+4:'💎 Ultimate diamond hands. Nerves of absolute steel.',
+5:'🔥 Legendary returns! Fund managers are lining up to recruit you.',
+6:'🦅 Eagle-eyed market vision. Astonishing judgment!',
+7:'⚡ Lightning-fast timing! Better than most pro traders.',
+8:'🎯 Every call was precise. You\'re a market sniper.',
+9:'🚀 Profits soaring like a rocket! Outstanding performance.',
+10:'💰 Top 10%! Exceptional investment instincts.',
+11:'🏅 Elite investor. Be proud of yourself.',
+12:'📈 Remarkable results! You can clearly read the market.',
+13:'🎖️ Better returns than most fund managers. Impressive!',
+14:'✨ Shining track record! Real investing talent showing.',
+15:'🌈 Turned crisis into opportunity. A wise investor.',
+16:'🏹 Master of timing! Buy and sell points were perfect.',
+17:'💪 Steel mentality conquered the volatility. Impressive!',
+18:'🔮 Great market prediction skills. A promising future!',
+19:'🎪 Survived the rollercoaster market brilliantly!',
+20:'📊 Top 20%! Pretty solid investment skills.',
+21:'🍀 Both luck and skill were on your side.',
+22:'⭐ Impressive gains! Worth bragging to your friends.',
+23:'🎯 Good diversification and timing. Textbook strategy!',
+24:'🔑 You have the knack for spotting key opportunities.',
+25:'📱 Go ahead and show off your portfolio on social media!',
+26:'🌿 Steady growth with a healthy investment style.',
+27:'🎢 Rode the waves like a surfer on the market!',
+28:'🧭 Great sense of direction in your investments.',
+29:'🏃 Ahead of the majority — agile investor.',
+30:'👍 Top 30%! Well above average results.',
+31:'📘 Solid fundamentals in your trading style.',
+32:'🌤️ A bright report card, like a sunny day.',
+33:'🎵 Rhythmic trading! You caught the market\'s beat.',
+34:'🧩 Strategic investing, like solving a puzzle.',
+35:'🌱 High growth potential! More experience will make you great.',
+36:'🎈 Decent results. Keep challenging yourself!',
+37:'🔧 A little more refinement and you\'ll be excellent.',
+38:'🍵 Stayed calm and steady. Good mental game.',
+39:'🌊 Kept your own pace without getting swept away.',
+40:'📗 Not bad! Above average performance.',
+41:'🎭 Navigated the volatility reasonably well.',
+42:'🧮 Your calculated approach paid off to some extent.',
+43:'🌻 Growing like a sunflower reaching for the sun!',
+44:'🎲 Luck played a part. Next time, rely on skill!',
+45:'🛡️ Defensive investing protected your assets well.',
+46:'⚖️ Tried to maintain a balanced portfolio.',
+47:'🍃 Swayed by the wind, but roots stayed firm.',
+48:'📐 Conservative investing. Not losing big is a plus.',
+49:'🎣 Caught some bait, dodged some others.',
+50:'📊 Right in the middle! Half winning, half learning.',
+51:'🌥️ Cloudy results. Clearing up is possible.',
+52:'🔍 Good analysis, but execution could improve.',
+53:'🎪 Held your own in the market circus.',
+54:'🧊 Tried to stay cool but wavered at times.',
+55:'📦 Conservative approach was a double-edged sword.',
+56:'🌧️ Slightly disappointing. Read the news more carefully next time.',
+57:'🐢 Turtle strategy... slow but was it safe?',
+58:'🎭 A lot of hesitation between buying and selling.',
+59:'🧪 Some experimental trades, mixed results.',
+60:'📉 Below average, but still okay. Experience is wealth!',
+61:'🌫️ Investing felt like walking through fog.',
+62:'🎯 Good aim, but the target kept moving.',
+63:'🧩 Strategy felt like a puzzle with missing pieces.',
+64:'🍂 Assets fell gently like autumn leaves.',
+65:'📝 Several turns need a review.',
+66:'🚶 Walking slowly, drifted a bit from the goal.',
+67:'🌬️ Misread the wind direction a few times.',
+68:'🎈 Assets leaked slowly like a deflating balloon.',
+69:'🔮 Predictions were off more often than not.',
+70:'📊 Bottom 30%. Focus more on news analysis.',
+71:'🌊 Got swept by the waves a bit. Hold stronger next time!',
+72:'🎲 Lady Luck wasn\'t on your side this time.',
+73:'🧗 The climb was tough, but not giving up is admirable.',
+74:'🌧️ A rainy day for investing... needed an umbrella.',
+75:'📉 Struggled in the downturn. Try hedging next time!',
+76:'🎭 Got caught up in crowd psychology a few times.',
+77:'🧊 Lost composure at critical moments.',
+78:'🎪 If the market clowned you, you\'re not alone.',
+79:'📦 Overall timing was unfortunate.',
+80:'💊 A bitter pill to swallow, but valuable lessons learned.',
+81:'🌪️ The market tornado got you good this time.',
+82:'🎰 More gambling than investing in some turns.',
+83:'🧲 Got attracted to all the wrong signals.',
+84:'📉 Heavy losses. Time for a strategy overhaul.',
+85:'🌋 Portfolio erupted... and not in a good way.',
+86:'🎭 FOMO took the wheel more than once.',
+87:'🧊 Should have gone with your gut less often.',
+88:'🎪 The market played you. Happens to everyone.',
+89:'📦 Almost nothing went right. Reverse strategy next time!',
+90:'😰 Bottom 10%... but hey, at least you didn\'t go bankrupt!',
+91:'🎰 Some turns were more gamble than investment...',
+92:'📉 Did you read the news backwards? Double check next time.',
+93:'🧊 Slipped on ice kind of investing.',
+94:'🌊 Took a big wave head-on and got soaked.',
+95:'📦 Almost every call was wrong. Inverse = #1!',
+96:'🎭 Did a scam coin get you? Check your portfolio...',
+97:'💸 Assets melted away... inverse would\'ve been a jackpot.',
+98:'🚨 Just released from investment prison.',
+99:'🆘 Someone send help to this investor!',
+100:'💀 Legendary losses... at this point it\'s almost a talent.'
+};
+
 const COIN_NAME_POOL=[
-  {sym:'NOVA',name:'노바코인',color:'#e040fb'},{sym:'ZENX',name:'제닉스',color:'#7c4dff'},
-  {sym:'BOLT',name:'볼트체인',color:'#ff6d00'},{sym:'LYNX',name:'링크스',color:'#00e5ff'},
-  {sym:'DUSK',name:'더스크',color:'#546e7a'},{sym:'FLUX',name:'플럭스',color:'#76ff03'},
-  {sym:'ORCA',name:'오르카',color:'#2979ff'},{sym:'PYRE',name:'파이어',color:'#ff1744'},
-  {sym:'IRIS',name:'아이리스',color:'#d500f9'},{sym:'KODA',name:'코다',color:'#00bfa5'},
-  {sym:'RYZE',name:'라이즈',color:'#ffab00'},{sym:'VYNE',name:'바인',color:'#69f0ae'},
-  {sym:'APEX',name:'에이펙스',color:'#f50057'},{sym:'CUBE',name:'큐브',color:'#304ffe'},
-  {sym:'ECHO',name:'에코',color:'#18ffff'},{sym:'HALO',name:'헤일로',color:'#ffd600'},
-  {sym:'JADE',name:'제이드',color:'#00c853'},{sym:'MOON',name:'문코인',color:'#b388ff'},
-  {sym:'NEON',name:'네온',color:'#64ffda'},{sym:'ONYX',name:'오닉스',color:'#cfd8dc'},
-  {sym:'PIXEL',name:'픽셀',color:'#ea80fc'},{sym:'QUASAR',name:'퀘이사',color:'#40c4ff'},
+  {sym:'NOVA',name:'노바코인',nameEn:'NovaCoin',color:'#e040fb'},{sym:'ZENX',name:'제닉스',nameEn:'Zenix',color:'#7c4dff'},
+  {sym:'BOLT',name:'볼트체인',nameEn:'BoltChain',color:'#ff6d00'},{sym:'LYNX',name:'링크스',nameEn:'Lynx',color:'#00e5ff'},
+  {sym:'DUSK',name:'더스크',nameEn:'Dusk',color:'#546e7a'},{sym:'FLUX',name:'플럭스',nameEn:'Flux',color:'#76ff03'},
+  {sym:'ORCA',name:'오르카',nameEn:'Orca',color:'#2979ff'},{sym:'PYRE',name:'파이어',nameEn:'Pyre',color:'#ff1744'},
+  {sym:'IRIS',name:'아이리스',nameEn:'Iris',color:'#d500f9'},{sym:'KODA',name:'코다',nameEn:'Koda',color:'#00bfa5'},
+  {sym:'RYZE',name:'라이즈',nameEn:'Ryze',color:'#ffab00'},{sym:'VYNE',name:'바인',nameEn:'Vyne',color:'#69f0ae'},
+  {sym:'APEX',name:'에이펙스',nameEn:'Apex',color:'#f50057'},{sym:'CUBE',name:'큐브',nameEn:'Cube',color:'#304ffe'},
+  {sym:'ECHO',name:'에코',nameEn:'Echo',color:'#18ffff'},{sym:'HALO',name:'헤일로',nameEn:'Halo',color:'#ffd600'},
+  {sym:'JADE',name:'제이드',nameEn:'Jade',color:'#00c853'},{sym:'MOON',name:'문코인',nameEn:'MoonCoin',color:'#b388ff'},
+  {sym:'NEON',name:'네온',nameEn:'Neon',color:'#64ffda'},{sym:'ONYX',name:'오닉스',nameEn:'Onyx',color:'#cfd8dc'},
+  {sym:'PIXEL',name:'픽셀',nameEn:'Pixel',color:'#ea80fc'},{sym:'QUASAR',name:'퀘이사',nameEn:'Quasar',color:'#40c4ff'},
 ];
 const SCAM_NAME_POOL=[
-  {sym:'RUGX',name:'럭풀X',color:'#f5a623'},{sym:'PUMP',name:'펌프잇',color:'#5fcfca'},
-  {sym:'SCAM',name:'스캐미',color:'#e74c3c'},{sym:'EXIT',name:'엑시트코인',color:'#ff6b6b'},
-  {sym:'FAKE',name:'페이크문',color:'#ff9ff3'},
+  {sym:'RUGX',name:'럭풀X',nameEn:'RugPullX',color:'#f5a623'},{sym:'PUMP',name:'펌프잇',nameEn:'PumpIt',color:'#5fcfca'},
+  {sym:'SCAM',name:'스캐미',nameEn:'Scammy',color:'#e74c3c'},{sym:'EXIT',name:'엑시트코인',nameEn:'ExitCoin',color:'#ff6b6b'},
+  {sym:'FAKE',name:'페이크문',nameEn:'FakeMoon',color:'#ff9ff3'},
 ];
 
 const NEWS_POOL={
@@ -466,28 +694,46 @@ function generateRandomCoins(){
   SCAM_POOL=[...SCAM_NAME_POOL].sort(()=>Math.random()-.5).slice(0,3);
 }
 
+// ═══ 다국어 헬퍼 ═══
+function t(key){return T[lang][key]||T['ko'][key]||key;}
+function coinName(c){return lang==='en'?(c.nameEn||c.name):c.name;}
+
 // ═══ 뉴스 생성 ═══
 function generateNews(){
   currentNews=[];newsEffects={};
   const ac=COINS.filter(c=>!delistedSet.has(c.sym)&&!c.isScam);
   if(!ac.length)return;
-  const used=new Set(),usedH=new Set();
+  const used=new Set(),usedIdx=new Set();
   function pick(){const a=ac.filter(c=>!used.has(c.sym));const c=(a.length?a:ac)[Math.floor(Math.random()*(a.length||ac.length))];used.add(c.sym);return c;}
-  function pickN(pool,coin){const l=pool.filter(n=>!usedH.has(n.headline));const n=(l.length?l:pool)[Math.floor(Math.random()*(l.length||pool.length))];usedH.add(n.headline);return{...n,headline:n.headline.replace(/{SYM}/g,coin?coin.sym:'').replace(/{NAME}/g,coin?coin.name:''),detail:n.detail.replace(/{SYM}/g,coin?coin.sym:'').replace(/{NAME}/g,coin?coin.name:'')};}
+  function makeHL(raw,coin){
+    const koName=coin?coin.name:'',enName=coin?(coin.nameEn||coin.name):'';
+    const hs=(s,nm)=>s.replace(/{SYM}/g,coin?`<span class="news-coin-name">${coin.sym}</span>`:'').replace(/{NAME}/g,coin?`<span class="news-coin-name">${nm}</span>`:'');
+    return{headlineKo:hs(raw.ko.headline,koName),detailKo:hs(raw.ko.detail,koName),headlineEn:hs(raw.en.headline,enName),detailEn:hs(raw.en.detail,enName)};
+  }
+  function pickN(poolKo,poolEn,coin){
+    const l=poolKo.map((_,i)=>i).filter(i=>!usedIdx.has(i));
+    const idx=l.length?l[Math.floor(Math.random()*l.length)]:Math.floor(Math.random()*poolKo.length);
+    usedIdx.add(idx);
+    const nKo=poolKo[idx],nEn=poolEn[idx];
+    const hl=makeHL({ko:nKo,en:nEn},coin);
+    return{...nKo,...hl};
+  }
   const r=Math.random(),sent=r<.4?'bullish':r<.75?'bearish':'neutral';
   if(Math.random()<.3&&sent!=='neutral'){
-    const p=MARKET_NEWS_POOL[sent],n=p[Math.floor(Math.random()*p.length)];
-    currentNews.push({...n,sentiment:sent,isMain:true,targetSym:'MARKET'});
-    for(const c of ac)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd;
+    const pKo=MARKET_NEWS_POOL[sent],pEn=MARKET_NEWS_POOL_EN[sent];
+    const idx=Math.floor(Math.random()*pKo.length);
+    const hl=makeHL({ko:pKo[idx],en:pEn[idx]},null);
+    currentNews.push({...pKo[idx],...hl,sentiment:sent,isMain:true,targetSym:'MARKET'});
+    for(const c of ac)newsEffects[c.sym]=(newsEffects[c.sym]||0)+pKo[idx].crowd;
   }else{
-    const coin=pick(),p=NEWS_POOL[sent],n=pickN(p,coin);
+    const coin=pick(),n=pickN(NEWS_POOL[sent],NEWS_POOL_EN[sent],coin);
     currentNews.push({...n,sentiment:sent,isMain:true,targetSym:coin.sym});
     newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd*(1+n.impact*.5);
     for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.15;
   }
   for(let i=0;i<2;i++){
     const coin=pick(),r2=Math.random(),s2=r2<.4?'bullish':r2<.7?'bearish':'neutral';
-    const n=pickN(NEWS_POOL[s2],coin);
+    const n=pickN(NEWS_POOL[s2],NEWS_POOL_EN[s2],coin);
     currentNews.push({...n,sentiment:s2,isMain:false,targetSym:coin.sym});
     newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd;
     for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.08;
@@ -500,12 +746,14 @@ function renderNewsPanel(){
   if(!currentNews.length)return;
   currentNews.forEach((n,i)=>{
     const d=document.createElement('div');
-    d.className='news-card'+(i===0?' main-news':'');
+    d.className='news-card';
     const tc=n.sentiment==='bullish'?'bullish':n.sentiment==='bearish'?'bearish':'neutral';
-    const tt=n.sentiment==='bullish'?'호재':n.sentiment==='bearish'?'악재':'혼합';
+    const tt=t(n.sentiment);
     const it=n.crowd>0?`+${n.crowd.toFixed(0)}%`:n.crowd<0?`${n.crowd.toFixed(0)}%`:'±0%';
     const ic=n.crowd>0?'positive':n.crowd<0?'negative':'';
-    d.innerHTML=`<span class="news-tag ${tc}">${tt}</span><div class="news-impact ${ic}">${it}</div><div class="news-headline">${n.headline}</div><div class="news-detail">${n.detail}</div><span class="news-coin-badge">${n.targetSym==='MARKET'?'전체 시장':n.targetSym}</span>`;
+    const hl=lang==='en'?(n.headlineEn||n.headline):n.headlineKo||n.headline;
+    const dt=lang==='en'?(n.detailEn||n.detail):n.detailKo||n.detail;
+    d.innerHTML=`<span class="news-tag ${tc}">${tt}</span><div class="news-impact ${ic}">${it}</div><div class="news-headline">${hl}</div><div class="news-detail">${dt}</div><span class="news-coin-badge">${n.targetSym==='MARKET'?t('market'):n.targetSym}</span>`;
     ct.appendChild(d);
   });
 }
@@ -532,40 +780,49 @@ function simulateNextTurn(){
     scamTimers[sym]--;
     if(scamTimers[sym]<=0&&!delistedSet.has(sym)){
       delistedSet.add(sym);prices[sym]=0;changes[sym]=-100;
-      showSysNews(`💀 ${sym} 상장폐지!`);
+      showSysNews(t('delisted').replace('%s',sym));
       if(holdings[sym]&&holdings[sym].qty>0)holdings[sym].qty=0;
     }
   }
-  if(turn>3&&!activeScam&&Math.random()<.12){
+  if(turn>3&&!activeScam&&Math.random()<.20){
     const sc=SCAM_POOL[Math.floor(Math.random()*SCAM_POOL.length)];
     activeScam={...sc,baseP:5+Math.random()*10,isScam:true};
     COINS.push(activeScam);prices[sc.sym]=activeScam.baseP;changes[sc.sym]=Math.random()*30+10;
     priceHist[sc.sym]=[activeScam.baseP];scamTimers[sc.sym]=2+Math.floor(Math.random()*3);
-    showSysNews(`⚠️ 신규 상장: ${sc.name}(${sc.sym}) — 스캠 주의!`);
+    showSysNews(t('scamNew').replace('%n',coinName(sc)).replace('%s',sc.sym));
   }
 }
 
 // ═══ UI ═══
 function buildCoinCards(){
   const ct=document.getElementById('coin-container');ct.innerHTML='';
+  const totalAsset=getTotalAsset()||1;
   for(const c of COINS){
     const sym=c.sym,p=prices[sym]||c.baseP,ch=changes[sym]||0,isUp=ch>=0,isDead=delistedSet.has(sym);
     const h=holdings[sym],hQty=h?h.qty:0,hq=hQty*p;
+    const holdRatio=hq/totalAsset*100;
     let cc=isUp?'up':'down';if(Math.abs(ch)>=10)cc=isUp?'big-up':'big-down';
     const crowd=newsEffects[sym]||0;let se='';
     if(crowd>=10)se=' news-boost';else if(crowd<=-10)se=' news-crash';
     const sec=document.createElement('div');sec.className='coin-section'+se;sec.id=`coin-${sym}`;
     if(isDead)sec.style.opacity='.4';
+    // 보유 비중별 테두리 강조
+    if(hq>0&&!isDead){const col=c.color;
+      if(holdRatio>50){sec.style.border=`3px solid ${col}`;sec.style.boxShadow=`0 0 20px ${col}60, 0 0 40px ${col}30`;}
+      else if(holdRatio>25){sec.style.border=`2px solid ${col}b3`;sec.style.boxShadow=`0 0 14px ${col}40`;}
+      else if(holdRatio>10){sec.style.border=`2px solid ${col}80`;sec.style.boxShadow=`0 0 8px ${col}25`;}
+      else{sec.style.border=`1px solid ${col}4d`;}
+    }
     sec.innerHTML=`<div class="coin-header">
       <div class="coin-icon" style="background:${c.color}">${sym[0]}</div>
-      <div class="coin-title"><div class="coin-name">${c.name} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym}</div></div>
-      <div class="coin-hold"><div class="coin-hold-label">보유</div><div class="coin-hold-qty">$${hq.toFixed(0)}</div><div class="coin-hold-val">${hQty.toFixed(4)} ${sym}</div></div>
+      <div class="coin-title"><div class="coin-name">${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym}</div></div>
+      <div class="coin-hold"><div class="coin-hold-label">${t('hold')}</div><div class="coin-hold-qty">$${hq.toFixed(0)}</div><div class="coin-hold-val">${hQty.toFixed(4)} ${sym}</div></div>
       <div class="coin-price-area"><div class="coin-price">$${p.toFixed(2)}</div><div class="coin-change ${cc}">${isUp?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
     </div>
     <div class="chart-area"><canvas id="chart-${sym}"></canvas></div>
     <div class="order-row" id="order-${sym}">
-      <button class="order-btn all-sell sell" onclick="sellAll('${sym}',this)">전액<br>매도</button>
-      <input class="order-custom" type="number" min="5" step="5" placeholder="직접" id="cs-${sym}">
+      <button class="order-btn all-sell sell" onclick="sellAll('${sym}',this)">${t('sellAll')}</button>
+      <input class="order-custom" type="number" min="5" step="5" placeholder="${t('custom')}" id="cs-${sym}">
       <button class="order-btn sell" onclick="setOrder('${sym}',-50,this)">$50</button>
       <button class="order-btn sell" onclick="setOrder('${sym}',-30,this)">$30</button>
       <button class="order-btn sell" onclick="setOrder('${sym}',-10,this)">$10</button>
@@ -575,8 +832,8 @@ function buildCoinCards(){
       <button class="order-btn buy" onclick="setOrder('${sym}',10,this)">$10</button>
       <button class="order-btn buy" onclick="setOrder('${sym}',30,this)">$30</button>
       <button class="order-btn buy" onclick="setOrder('${sym}',50,this)">$50</button>
-      <input class="order-custom" type="number" min="5" step="5" placeholder="직접" id="cb-${sym}">
-      <button class="order-btn all-buy buy" onclick="buyAll('${sym}',this)">전액<br>매수</button>
+      <input class="order-custom" type="number" min="5" step="5" placeholder="${t('custom')}" id="cb-${sym}">
+      <button class="order-btn all-buy buy" onclick="buyAll('${sym}',this)">${t('buyAll')}</button>
       <div class="order-pending" id="pending-${sym}"></div>
     </div>`;
     ct.appendChild(sec);
@@ -609,26 +866,26 @@ function drawChart(sym,color){
   ctx.beginPath();ctx.arc(lx,ly,6,0,Math.PI*2);ctx.strokeStyle=color+'60';ctx.lineWidth=2;ctx.stroke();
   if(hist.length>=2){const bw=Math.max(3,w/hist.length-2);
     for(let i=1;i<hist.length;i++){const x=i/(hist.length-1)*w-bw/2,o=hist[i-1],cl=hist[i];
-      const t=Math.min(o,cl),b=Math.max(o,cl);
+      const lo=Math.min(o,cl),hi=Math.max(o,cl);
       ctx.fillStyle=cl>=o?'rgba(34,197,94,.25)':'rgba(239,68,68,.25)';
-      ctx.fillRect(x,h-((b-mn)/rng)*h,bw,Math.max(1,(h-((t-mn)/rng)*h)-(h-((b-mn)/rng)*h)));
+      ctx.fillRect(x,h-((hi-mn)/rng)*h,bw,Math.max(1,(h-((lo-mn)/rng)*h)-(h-((hi-mn)/rng)*h)));
     }
   }
 }
 
 // ═══ 주문 ═══
 function setOrder(sym,amt,btn){
-  amt=parseInt(amt);if(delistedSet.has(sym)){showSysNews(`💀 ${sym} 거래불가`);return;}
+  amt=parseInt(amt);if(delistedSet.has(sym)){showSysNews(`💀 ${sym} ${t('noTrade')}`);return;}
   const cur=orders[sym]||0,nw=cur+amt;
   const p=prices[sym]||1;
-  if(nw<0){const ha=holdings[sym]?holdings[sym].qty*p:0;if(Math.abs(nw)>ha+0.5){showSysNews(`보유분($${ha.toFixed(0)}) 초과`);return;}}
-  if(nw>0){const tb=Object.values(orders).reduce((s,v)=>s+(v>0?v:0),0)-Math.max(0,cur)+Math.max(0,nw);if(tb>cash){showSysNews(`현금($${cash.toFixed(0)}) 부족`);return;}}
+  if(nw<0){const ha=holdings[sym]?holdings[sym].qty*p:0;if(Math.abs(nw)>ha+0.5){showSysNews(t('overSell').replace('%s',ha.toFixed(0)));return;}}
+  if(nw>0){const tb=Object.values(orders).reduce((s,v)=>s+(v>0?v:0),0)-Math.max(0,cur)+Math.max(0,nw);if(tb>cash){showSysNews(t('cashShort').replace('%s',cash.toFixed(0)));return;}}
   orders[sym]=nw;updateOD(sym);updatePS();
   if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
 }
 function sellAll(sym,btn){
   if(delistedSet.has(sym))return;const h=holdings[sym];const p=prices[sym]||1;
-  if(!h||h.qty<=0){showSysNews(`${sym} 보유분 없음`);return;}
+  if(!h||h.qty<=0){showSysNews(`${sym} ${t('noHold')}`);return;}
   const val=Math.floor(h.qty*p);
   orders[sym]=-val;updateOD(sym);updatePS();
   if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
@@ -636,23 +893,23 @@ function sellAll(sym,btn){
 function buyAll(sym,btn){
   if(delistedSet.has(sym))return;
   const ob=Object.entries(orders).reduce((s,[k,v])=>k!==sym&&v>0?s+v:s,0),av=cash-ob;
-  if(av<=0){showSysNews('현금 부족');return;}
+  if(av<=0){showSysNews(t('noCash'));return;}
   orders[sym]=Math.floor(av);updateOD(sym);updatePS();
   if(btn){btn.classList.add('active');setTimeout(()=>btn.classList.remove('active'),200);}
 }
 function updateOD(sym){
   const el=document.getElementById(`pending-${sym}`),v=orders[sym]||0;
   if(!v){el.textContent='';el.className='order-pending';return;}
-  if(v>0){el.textContent=`매수 $${v}`;el.className='order-pending buy-pending';}
-  else{el.textContent=`매도 $${Math.abs(v)}`;el.className='order-pending sell-pending';}
+  if(v>0){el.textContent=`${t('buy')} $${v}`;el.className='order-pending buy-pending';}
+  else{el.textContent=`${t('sell')} $${Math.abs(v)}`;el.className='order-pending sell-pending';}
 }
 function updatePS(){
   let b=0,s=0,c=0;
   for(const[,v]of Object.entries(orders)){if(v>0){b+=v;c++;}else if(v<0){s+=Math.abs(v);c++;}}
   const el=document.getElementById('pending-summary');
-  el.innerHTML=c===0?'주문을 설정하고 제출하세요.':`<span>${c}건</span> — <span style="color:var(--buy)">매수 $${b}</span> | <span style="color:var(--sell)">매도 $${s}</span>`;
+  el.innerHTML=c===0?t('pendingDefault'):`<span>${c} ${t('pending')}</span> — <span style="color:var(--buy)">${t('buy')} $${b}</span> | <span style="color:var(--sell)">${t('sell')} $${s}</span>`;
 }
-function resetOrders(){orders={};for(const c of COINS)updateOD(c.sym);updatePS();showSysNews('주문 초기화');}
+function resetOrders(){orders={};for(const c of COINS)updateOD(c.sym);updatePS();showSysNews(t('orderReset'));}
 
 // ═══ 제출 ═══
 function submitOrders(){
@@ -672,12 +929,12 @@ function submitOrders(){
   for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
   if(getTotalAsset()<=0){endGame('bankrupt');return;}
   resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
-  if(bt>0||st>0)showSysNews(`✅ 턴${turn}: 매수$${bt}/매도$${st}/인플레-$${inf.toFixed(1)}`);
-  else showSysNews(`턴${turn}: 주문없음. 인플레-$${inf.toFixed(1)}`);
+  if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
+  else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
 }
 
 // ═══ 자산 ═══
-function getHV(){let t=0;for(const[sym,h]of Object.entries(holdings))if(h.qty>0&&!delistedSet.has(sym))t+=h.qty*(prices[sym]||0);return t;}
+function getHV(){let v=0;for(const[sym,h]of Object.entries(holdings))if(h.qty>0&&!delistedSet.has(sym))v+=h.qty*(prices[sym]||0);return v;}
 function getTotalAsset(){return cash+getHV();}
 
 // ═══ 헤더 ═══
@@ -692,11 +949,11 @@ function updateHeader(){
   const pct=Math.max(0,Math.min(100,income));
   document.getElementById('ig-fill').style.width=pct+'%';
   document.getElementById('ig-pct').textContent=Math.round(pct)+'%';
-  let col,label;
-  if(pct<15){col='#ef4444';label='극빈층';}else if(pct<30){col='#f87171';label='빈곤층';}
-  else if(pct<45){col='#fb923c';label='저소득층';}else if(pct<60){col='#f59e0b';label='중산층';}
-  else if(pct<75){col='#22c55e';label='고소득층';}else if(pct<90){col='#3b82f6';label='상류층';}
-  else{col='#a78bfa';label='최상류층';}
+  const gr=t('grades');let col,label;
+  if(pct<15){col='#ef4444';label=gr[0];}else if(pct<30){col='#f87171';label=gr[1];}
+  else if(pct<45){col='#fb923c';label=gr[2];}else if(pct<60){col='#f59e0b';label=gr[3];}
+  else if(pct<75){col='#22c55e';label=gr[4];}else if(pct<90){col='#3b82f6';label=gr[5];}
+  else{col='#a78bfa';label=gr[6];}
   document.getElementById('ig-fill').style.background=col;
   document.getElementById('ig-grade').textContent=label;document.getElementById('ig-grade').style.color=col;
 }
@@ -704,7 +961,7 @@ function updateHeader(){
 // ═══ 턴 게이지 ═══
 function updateTurnGauge(){
   const pct=Math.min(100,turn/MAX_TURNS*100);
-  document.getElementById('turn-text').textContent=`턴 ${turn} / ${MAX_TURNS}`;
+  document.getElementById('turn-text').textContent=`${t('turnOf')} ${turn} / ${MAX_TURNS}`;
   document.getElementById('s-turn').textContent=turn;
   const fill=document.getElementById('turn-fill');
   fill.style.width=pct+'%';
@@ -715,7 +972,7 @@ function updateTurnGauge(){
 function resetTimer(){
   timeLeft=TURN_TIME;clearInterval(timerInterval);updateTimerDisplay();
   timerInterval=setInterval(()=>{if(!gameRunning)return;timeLeft--;updateTimerDisplay();
-    if(timeLeft<=0){showSysNews('⏰ 시간초과! 자동제출');submitOrders();}
+    if(timeLeft<=0){showSysNews(t('timeOver'));submitOrders();}
   },1000);
 }
 function updateTimerDisplay(){
@@ -737,12 +994,12 @@ function startGame(){
   generateNews();
   document.getElementById('overlay').classList.add('hidden');
   renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();resetTimer();
-  showSysNews('🎮 게임시작! 20턴 안에 최대 수익을 올리세요!');
+  showSysNews(t('gameStart'));
 }
 // ═══ 정규분포 상위 % 계산 ═══
 // 수익률 기준: 평균 0%, 표준편차 15% (20턴 시뮬 가정)
 function pnlToTopPercent(pnl){
-  const mean=0,sd=15;
+  const mean=0,sd=8;
   const z=(pnl-mean)/sd;
   // 표준정규 CDF 근사 (Abramowitz & Stegun)
   function normCDF(x){
@@ -912,44 +1169,62 @@ function drawNormalCurve(canvas,topPct){
   ctx.beginPath();ctx.arc(myX,myY,8,0,Math.PI*2);ctx.strokeStyle=ctx.fillStyle+'80';ctx.lineWidth=2;ctx.stroke();
   // "나" 라벨
   ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
-  ctx.fillText('▼ 나',myX,myY-12);
+  ctx.fillText(t('curveMe'),myX,myY-12);
   // 하단 축 라벨
   ctx.fillStyle='#4b5563';ctx.font='10px sans-serif';ctx.textAlign='center';
-  const labels=['하위','','','중간','','','상위'];
+  const labels=[t('curveLow'),'','',t('curveMid'),'','',t('curveHigh')];
   for(let i=0;i<7;i++){ctx.fillText(labels[i],pad.l+gw*i/6,h-4);}
   // 좌측 Y축 라벨
   ctx.fillStyle='#374151';ctx.font='9px sans-serif';ctx.textAlign='right';
-  ctx.fillText('많음',pad.l-5,pad.t+12);ctx.fillText('적음',pad.l-5,pad.t+gh);
+  ctx.fillText(t('curveMany'),pad.l-5,pad.t+12);ctx.fillText(t('curveFew'),pad.l-5,pad.t+gh);
 }
 
 function endGame(reason){
   gameRunning=false;clearInterval(timerInterval);
   const tot=getTotalAsset(),pnl=(tot-START_CASH)/START_CASH*100;
   const topPct=reason==='bankrupt'?100:pnlToTopPercent(pnl);
-  const comment=RANK_COMMENTS[topPct]||RANK_COMMENTS[50];
+  const rc_table=lang==='en'?RANK_COMMENTS_EN:RANK_COMMENTS;
+  const comment=rc_table[topPct]||rc_table[50];
   const rankColor=topPct<=5?'#a78bfa':topPct<=10?'#22c55e':topPct<=25?'#3b82f6':topPct<=50?'#f59e0b':topPct<=75?'#fb923c':'#ef4444';
-  const ov=document.getElementById('overlay');ov.classList.remove('hidden');
-  ov.querySelector('h1').textContent=reason==='bankrupt'?'💸 파산!':reason==='finished'?'🏁 게임 종료!':'게임 종료';
-  const rc=document.getElementById('result-card');rc.style.display='block';
-  rc.innerHTML=`<div class="result-title" style="color:${pnl>=0?'var(--profit)':'var(--loss)'}">${reason==='bankrupt'?'파산':'$'+tot.toFixed(0)} <span style="font-size:18px">(${pnl>=0?'+':''}${pnl.toFixed(1)}%)</span></div>
-    <div class="result-rank" style="color:${rankColor}">상위 ${topPct}<span class="pct">%</span></div>
-    <div class="result-comment" style="color:${rankColor}">${comment}</div>
-    <canvas class="result-curve" id="result-curve" width="420" height="160"></canvas>
-    <div class="result-stats">
-      최종 자산: $${tot.toFixed(0)} / 현금: $${cash.toFixed(0)} / 코인: $${getHV().toFixed(0)}<br>
-      총 ${Math.min(turn,MAX_TURNS)}턴 / 인플레이션 누적: -$${inflTotal.toFixed(0)}
-    </div>`;
-  document.getElementById('start-btn').textContent='다시 시작';
-  ov.querySelector('.desc').style.display='none';
-  // 캔버스 그리기 (DOM 삽입 후, 모바일 리사이즈 포함)
-  setTimeout(()=>{
-    const cv=document.getElementById('result-curve');
-    if(window.innerWidth<=768){
-      const w=Math.min(420,rc.offsetWidth-32);
-      cv.width=w;cv.height=Math.round(w*160/420);
-    }
-    drawNormalCurve(cv,topPct);
-  },80);
+  // 전면 광고 먼저 표시
+  showAdInterstitial(()=>{
+    const ov=document.getElementById('overlay');ov.classList.remove('hidden');
+    ov.querySelector('h1').textContent=reason==='bankrupt'?t('bankrupt'):reason==='finished'?t('finished'):t('endTitle');
+    const rc=document.getElementById('result-card');rc.style.display='block';
+    rc.innerHTML=`<div class="result-title" style="color:${pnl>=0?'var(--profit)':'var(--loss)'}">${reason==='bankrupt'?t('bankruptLabel'):'$'+tot.toFixed(0)} <span style="font-size:18px">(${pnl>=0?'+':''}${pnl.toFixed(1)}%)</span></div>
+      <div class="result-rank" style="color:${rankColor}">${t('topPct')} ${topPct}<span class="pct">%</span></div>
+      <div class="result-comment" style="color:${rankColor}">${comment}</div>
+      <canvas class="result-curve" id="result-curve" width="420" height="160"></canvas>
+      <div class="result-stats">
+        ${t('finalAsset')}: $${tot.toFixed(0)} / ${t('cashLabel')}: $${cash.toFixed(0)} / ${t('coinLabel')}: $${getHV().toFixed(0)}<br>
+        ${t('totalTurn')} ${Math.min(turn,MAX_TURNS)}${t('turnUnit')} / ${t('inflAccum')}: -$${inflTotal.toFixed(0)}
+      </div>`;
+    document.getElementById('start-btn').textContent=t('restartBtn');
+    ov.querySelector('.desc').style.display='none';
+    setTimeout(()=>{
+      const cv=document.getElementById('result-curve');
+      if(window.innerWidth<=768){
+        const w=Math.min(420,rc.offsetWidth-32);
+        cv.width=w;cv.height=Math.round(w*160/420);
+      }
+      drawNormalCurve(cv,topPct);
+    },80);
+  });
+}
+
+function showAdInterstitial(callback){
+  const ad=document.getElementById('ad-interstitial');
+  const cdEl=document.getElementById('ad-countdown');
+  ad.classList.remove('hidden');
+  try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  let sec=5;
+  cdEl.textContent=t('adCountdown').replace('%s',sec);
+  const iv=setInterval(()=>{
+    sec--;
+    if(sec>0){cdEl.textContent=t('adCountdown').replace('%s',sec);}
+    else{clearInterval(iv);cdEl.textContent=t('adLoading');
+      setTimeout(()=>{ad.classList.add('hidden');callback();},600);}
+  },1000);
 }
 
 function showSysNews(msg){
@@ -973,6 +1248,46 @@ window.addEventListener('resize',()=>{
     cv.width=w;cv.height=Math.round(w*160/420);
   }
 });
+
+// ═══ 언어 전환 ═══
+function switchLang(){
+  lang=lang==='ko'?'en':'ko';
+  document.getElementById('lang-ko').className=lang==='ko'?'active':'';
+  document.getElementById('lang-en').className=lang==='en'?'active':'';
+  document.documentElement.lang=lang;
+  updateStaticUI();
+  if(gameRunning){
+    // 뉴스 다시 렌더(기존 뉴스 재번역은 복잡하므로 라벨만 갱신)
+    renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
+  }
+}
+function updateStaticUI(){
+  document.getElementById('logo-text').textContent=t('logo');
+  // 헤더 stat labels
+  const labels=document.querySelectorAll('.stat-label');
+  const lkeys=['cash','coinAsset','totalAsset','pnl'];
+  labels.forEach((el,i)=>{if(lkeys[i])el.textContent=t(lkeys[i]);});
+  document.querySelector('.timer-label').textContent=t('timeLeft');
+  // 사이드바
+  const sbTitles=document.querySelectorAll('.sb-title');
+  const sbKeys=['turnProgress','incomeLevel','newsTitle'];
+  sbTitles.forEach((el,i)=>{if(sbKeys[i])el.textContent=T[lang][sbKeys[i]]||el.textContent;});
+  // 소득 ticks
+  const ticks=document.querySelectorAll('.income-ticks span');
+  const gt=t('gradeTicks');
+  ticks.forEach((el,i)=>{if(gt[i])el.textContent=gt[i];});
+  // 오버레이
+  const ov=document.getElementById('overlay');
+  ov.querySelector('h1').textContent=t('gameTitle');
+  ov.querySelector('.desc').innerHTML=t('gameDesc');
+  const startBtn=document.getElementById('start-btn');
+  if(startBtn.textContent!==t('restartBtn'))startBtn.textContent=t('startBtn');
+  // 하단 바
+  document.querySelector('.submit-btn').innerHTML=t('submit');
+  document.querySelector('.reset-btn').textContent=t('reset');
+  // 광고
+  document.querySelector('.ad-label').textContent=lang==='en'?'AD':'광고';
+}
 </script>
 </body>
 </html>

@@ -75,5 +75,83 @@ $1,000 가상 자금으로 시작합니다.
 
 ---
 
-*Built with vanilla HTML/CSS/JS — 단일 파일, 설치 없음*
+---
 
+# 🎰 Crypto Trader — Can You Survive?
+
+> **"I just trusted the news... and lost everything."**
+
+Out of 14 million real investors, **60% lose money.**
+Will you be one of them?
+
+---
+
+## 💀 Why You Need to Play This
+
+### 1. Lose fake money before you lose real money
+You start with $1,000 in virtual funds.
+How much will you have left after 20 turns?
+
+### 2. The news lies to you
+You buy on bullish news — it **crashes.**
+Bearish headlines hit — the price **moons.**
+Just like the real crypto market.
+
+### 3. A brutally honest skill check
+After the game, your performance is ranked against
+**real investor return distributions.**
+Where do you stand among 14 million traders?
+
+### 4. It is harder than you think
+- 📰 3 news articles per turn — real or fake?
+- 💀 Sudden delistings — your coins become worthless
+- 📉 Inflation — idle cash loses value every turn
+- 🎭 Herd mentality — if everyone is buying, you are already too late
+
+---
+
+## 🕹️ How to Play
+
+| Step | Description |
+|------|-------------|
+| 1️⃣ | Pick from 8 virtual coins to invest in |
+| 2️⃣ | Read the news, place buy/sell orders |
+| 3️⃣ | Hit Submit to execute orders → next turn |
+| 4️⃣ | After 20 turns, see your final rank |
+
+⏱ 1 turn = 60 seconds. Decide fast.
+
+---
+
+## 🏆 Your Rank
+
+| Rank | Condition |
+|------|-----------|
+| 🟣 Elite | Top 1% — Legendary investor |
+| 🔵 Upper Class | Top 10% — Pro trader level |
+| 🟢 Upper Middle | Top 20% — Exceptional instincts |
+| 🟡 Middle Class | Top 40% — Above average |
+| 🟠 Low Income | Top 60% — Room to improve |
+| 🔴 Poor / Extreme | Bottom 40% — The news got you |
+
+---
+
+## ✨ Key Features
+
+- 🌐 **Korean / English** real-time toggle
+- 📊 Live candlestick & line charts
+- 📰 **News mind games** — fake news, priced-in, contrarian events
+- 💀 Scam coins & delisting system
+- 📈 **Live income level** based on real investor distributions
+- 📱 Fully mobile responsive
+
+---
+
+## 🎯 One-liner
+
+> **Blindly trusting the news will ruin you.**
+> This game teaches you that lesson for free.
+
+---
+
+*Built with vanilla HTML/CSS/JS — single file, zero install*

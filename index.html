@@ -770,8 +770,38 @@ function simulateNextTurn(){
   for(const c of COINS){
     if(delistedSet.has(c.sym)){prices[c.sym]=0;changes[c.sym]=-100;continue;}
     const prev=prices[c.sym],trend=(changes[c.sym]||0)*.2,rnd=Math.random()*20-10;
-    let base=trend+rnd*.8;const crowd=newsEffects[c.sym]||0;
-    const total=Math.max(-30,Math.min(35,base+crowd));
+    let base=trend+rnd*.8;
+    let crowd=newsEffects[c.sym]||0;
+
+    // ═══ 뉴스 불신 알고리즘 ═══
+    // 1) 뉴스 신뢰도: 뉴스가 시세에 실제 반영되는 비율 (30~110%, 가끔 과잉/부족)
+    const reliability=0.3+Math.random()*0.8;
+    crowd*=reliability;
+
+    // 2) 가짜 뉴스 / 역행 이벤트: 뉴스와 정반대로 움직이는 확률
+    //    초반(1~5턴) 35%, 중반(6~12턴) 25%, 후반(13~20턴) 15%
+    const fakeChance=turn<=5?0.35:turn<=12?0.25:0.15;
+    if(Math.abs(crowd)>3&&Math.random()<fakeChance){
+      crowd=-crowd*(0.5+Math.random()*0.7); // 반대 방향으로 50~120% 역전
+    }
+
+    // 3) 이미 반영됨(priced-in): 큰 호재/악재가 나왔지만 이미 가격에 선반영
+    //    crowd 절대값이 클수록 priced-in 확률 증가
+    if(Math.abs(crowd)>12&&Math.random()<0.30){
+      crowd*=0.1+Math.random()*0.2; // 기대의 10~30%만 실제 반영
+    }
+
+    // 4) 되돌림(mean-reversion): 직전 턴 변동이 컸으면 반대로 되돌림
+    const prevChange=changes[c.sym]||0;
+    if(Math.abs(prevChange)>8){
+      const reversion=-prevChange*(0.2+Math.random()*0.3);
+      base+=reversion;
+    }
+
+    // 5) 랜덤 노이즈 강화: 시장의 비합리성, 예측 불가능한 변동
+    const chaos=(Math.random()-0.5)*8;
+
+    const total=Math.max(-30,Math.min(35,base+crowd+chaos));
     const np=Math.max(.5,prev*(1+total/100));
     prices[c.sym]=np;changes[c.sym]=((np-prev)/prev)*100;
     priceHist[c.sym].push(np);if(priceHist[c.sym].length>30)priceHist[c.sym].shift();

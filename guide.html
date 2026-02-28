@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>게임 가이드 | 크립토 트레이더</title>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--border:#1e2a3a;--text:#e5e7eb;--muted:#6b7280;--accent:#f59e0b;--profit:#22c55e;--loss:#ef4444;--sell:#3b82f6;--buy:#ef4444;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;min-height:100vh;font-size:15px;line-height:1.8;}
+.page-header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:16px;}
+.page-header a{color:var(--accent);text-decoration:none;font-weight:700;font-size:14px;}
+.page-header a:hover{text-decoration:underline;}
+.page-header h1{font-size:20px;font-weight:800;color:var(--text);}
+.container{max-width:800px;margin:0 auto;padding:32px 24px 60px;}
+h2{font-size:18px;font-weight:800;color:var(--accent);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+h3{font-size:15px;font-weight:700;color:var(--text);margin:20px 0 8px;}
+p,li{color:var(--text);font-size:14px;line-height:1.8;margin-bottom:8px;}
+ul,ol{padding-left:20px;margin-bottom:12px;}
+.highlight{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13px;}
+.tip-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13px;}
+.warn-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:8px;padding:14px 18px;margin:16px 0;font-size:13px;color:#fca5a5;}
+.rank-table{width:100%;border-collapse:collapse;margin:12px 0;font-size:13px;}
+.rank-table th{background:var(--card);border:1px solid var(--border);padding:8px 12px;text-align:center;font-weight:700;color:var(--accent);}
+.rank-table td{border:1px solid var(--border);padding:6px 12px;text-align:center;}
+.step-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;position:relative;}
+.step-num{position:absolute;top:-8px;left:12px;background:var(--accent);color:#000;font-size:11px;font-weight:900;padding:2px 8px;border-radius:10px;}
+.step-title{font-size:14px;font-weight:700;margin:8px 0 4px;}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+.strat-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;}
+.strat-title{font-size:15px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.strat-body{font-size:13px;color:var(--muted);line-height:1.7;}
+.strat-body strong{color:var(--text);}
+.footer-nav{background:var(--card);border-top:1px solid var(--border);padding:16px 28px;text-align:center;font-size:12px;color:var(--muted);}
+.footer-nav a{color:var(--accent);text-decoration:none;margin:0 10px;}
+.footer-nav a:hover{text-decoration:underline;}
+.lang-toggle{display:inline-flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;font-size:12px;font-weight:700;user-select:none;margin-left:auto;}
+.lang-toggle span{padding:5px 10px;transition:all .2s;color:var(--muted);}
+.lang-toggle span.active{background:var(--accent);color:#000;border-radius:18px;}
+.en{display:none;}
+@media(max-width:600px){.container{padding:20px 14px 40px;} h2{font-size:16px;} .step-grid{grid-template-columns:1fr;} .page-header{padding:12px 14px;}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a href="index.html">← 게임으로 돌아가기</a>
+  <h1 id="page-title">게임 가이드</h1>
+  <div class="lang-toggle" onclick="toggleLang()"><span id="lk" class="active">KO</span><span id="le">EN</span></div>
+</div>
+
+<div class="container">
+
+<!-- 한국어 -->
+<div class="ko">
+
+<div class="highlight">
+  🎮 <strong>크립토 트레이더</strong>는 가상 암호화폐 시장에서 뉴스를 읽고 판단하며 20턴 동안 최대 수익을 달성하는 모의투자 시뮬레이터입니다. 뉴스를 맹신하지 않는 투자 습관을 기르세요!
+</div>
+
+<h2>📖 기본 규칙</h2>
+<div class="step-grid">
+  <div class="step-card"><div class="step-num">1</div><div class="step-title">시작 자금</div><div class="step-desc">$1,000의 현금으로 시작합니다. 8개의 가상 코인이 랜덤으로 배정됩니다.</div></div>
+  <div class="step-card"><div class="step-num">2</div><div class="step-title">턴 진행</div><div class="step-desc">총 20턴이 진행되며, 매 턴 60초의 시간 제한이 있습니다. 시간 초과 시 자동 제출됩니다.</div></div>
+  <div class="step-card"><div class="step-num">3</div><div class="step-title">뉴스 확인</div><div class="step-desc">매 턴 3개의 뉴스가 발행됩니다. 호재(🟢), 악재(🔴), 혼합(🟡) 뉴스가 시세에 영향을 줍니다.</div></div>
+  <div class="step-card"><div class="step-num">4</div><div class="step-title">주문 & 제출</div><div class="step-desc">코인별로 매수(빨강)/매도(파랑) 금액을 설정하고, 제출 버튼을 누르면 체결 → 다음 턴으로 넘어갑니다.</div></div>
+</div>
+
+<h2>💰 매매 방법</h2>
+<ul>
+  <li><span style="color:var(--buy)"><strong>빨간 버튼 = 매수:</strong></span> $5, $10, $30, $50 단위 또는 직접 입력으로 코인 구매</li>
+  <li><span style="color:var(--sell)"><strong>파란 버튼 = 매도:</strong></span> 보유 코인을 달러로 환매</li>
+  <li><strong>전액 매수:</strong> 남은 현금 전부를 해당 코인에 투자</li>
+  <li><strong>전액 매도:</strong> 보유 코인 전부를 매도</li>
+  <li><strong>초기화:</strong> 설정한 주문을 모두 취소</li>
+</ul>
+
+<h2>⚠️ 주의 사항</h2>
+
+<div class="warn-box">
+  <strong>💀 상장폐지:</strong> 게임 중반 이후 스캠 코인이 등장할 수 있습니다! 2~4턴 후 상장폐지되며, 보유분은 <strong>전액 소멸</strong>됩니다. ⚠️ 마크가 붙은 코인을 조심하세요.
+</div>
+
+<div class="warn-box">
+  <strong>📉 인플레이션:</strong> 매 턴 보유 현금의 0.5%가 인플레이션으로 차감됩니다. 가만히 있으면 돈이 줄어듭니다!
+</div>
+
+<h2>📰 뉴스 시스템 — 핵심 메커니즘</h2>
+<p>이 게임의 가장 중요한 교훈: <strong>뉴스를 무조건 믿으면 안 됩니다.</strong></p>
+
+<div class="strat-card">
+  <div class="strat-title">🎭 가짜 뉴스 / 역행</div>
+  <div class="strat-body">호재 뉴스가 나와도 가격이 <strong>오히려 하락</strong>할 수 있습니다. 초반(1~5턴)에는 35%, 중반 25%, 후반 15% 확률로 뉴스와 반대로 움직입니다. <strong>초반일수록 뉴스를 의심하세요!</strong></div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">📊 이미 반영됨 (Priced-in)</div>
+  <div class="strat-body">큰 호재/악재가 나와도 이미 시장이 예상했다면 <strong>기대의 10~30%만</strong> 실제로 반영됩니다. 뉴스의 크기와 실제 변동은 비례하지 않습니다.</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🔄 되돌림 (Mean Reversion)</div>
+  <div class="strat-body">직전 턴에 8% 이상 급등/급락한 코인은 <strong>반대 방향으로 되돌림</strong>이 발생할 확률이 높습니다. 급등 후 매수는 위험합니다!</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🎲 뉴스 신뢰도</div>
+  <div class="strat-body">모든 뉴스는 시세에 30~110%만 반영됩니다. 같은 호재여도 <strong>어떤 턴은 효과가 크고, 어떤 턴은 거의 없을 수</strong> 있습니다.</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🌪️ 시장 노이즈</div>
+  <div class="strat-body">매 턴 ±4%의 랜덤 변동이 추가됩니다. 뉴스와 무관한 <strong>예측 불가능한 움직임</strong>이 항상 존재합니다.</div>
+</div>
+
+<h2>🏆 전략 가이드</h2>
+
+<div class="tip-box">
+  <strong>💡 초보자 전략:</strong><br>
+  • 첫 5턴은 소액($5~$10)으로 시장 반응을 관찰하세요<br>
+  • 뉴스가 맞는지 1턴 기다려보고 투자하는 것이 안전합니다<br>
+  • 한 코인에 올인하지 마세요 — 분산투자가 핵심!
+</div>
+
+<div class="tip-box">
+  <strong>🔥 중급자 전략:</strong><br>
+  • 급등한 코인은 다음 턴에 되돌림이 올 수 있으니 매도 고려<br>
+  • 악재 뉴스 후 급락한 코인은 반등 기회일 수 있습니다 (역발상)<br>
+  • 중후반에는 뉴스 신뢰도가 높아지므로 적극적으로 대응하세요
+</div>
+
+<div class="tip-box">
+  <strong>👑 고급자 전략:</strong><br>
+  • 뉴스 방향보다 <strong>차트 추세와 되돌림 패턴</strong>에 집중하세요<br>
+  • 스캠 코인 등장 시 빠르게 매도하거나 아예 진입하지 마세요<br>
+  • 현금 보유도 전략입니다 — 인플레이션을 감안하되 확신 없으면 기다리세요
+</div>
+
+<h2>📊 소득수준 등급</h2>
+<p>게임 결과는 실제 한국 투자자 수익률 분포 통계를 기반으로 소득 등급이 부여됩니다:</p>
+
+<table class="rank-table">
+  <tr><th>등급</th><th>상위 %</th><th>설명</th></tr>
+  <tr><td style="color:#a78bfa;font-weight:700">최상류층</td><td>상위 1%</td><td>전설적 투자자</td></tr>
+  <tr><td style="color:#3b82f6;font-weight:700">상류층</td><td>상위 1~10%</td><td>탁월한 투자 감각</td></tr>
+  <tr><td style="color:#22c55e;font-weight:700">고소득층</td><td>상위 10~20%</td><td>우수한 성과</td></tr>
+  <tr><td style="color:#f59e0b;font-weight:700">중산층</td><td>상위 20~40%</td><td>평균 이상</td></tr>
+  <tr><td style="color:#fb923c;font-weight:700">저소득층</td><td>상위 40~60%</td><td>아쉬운 결과</td></tr>
+  <tr><td style="color:#f87171;font-weight:700">빈곤층</td><td>상위 60~80%</td><td>개선이 필요</td></tr>
+  <tr><td style="color:#ef4444;font-weight:700">극빈층</td><td>상위 80~100%</td><td>다시 도전!</td></tr>
+</table>
+
+<p style="font-size:12px;color:var(--muted);margin-top:8px;">* 통계 출처: 자본시장연구원, NH투자증권/신한투자증권 2024-2025 분석 (개인투자자 수익률 분포 기반)</p>
+
+</div>
+
+<!-- English -->
+<div class="en">
+
+<div class="highlight">
+  🎮 <strong>Crypto Trader</strong> is a mock investment simulator where you read news, make judgments, and aim for maximum returns over 20 turns. Build the habit of not blindly trusting the news!
+</div>
+
+<h2>📖 Basic Rules</h2>
+<div class="step-grid">
+  <div class="step-card"><div class="step-num">1</div><div class="step-title">Starting Capital</div><div class="step-desc">Start with $1,000 cash. 8 virtual coins are randomly assigned.</div></div>
+  <div class="step-card"><div class="step-num">2</div><div class="step-title">Turn Progression</div><div class="step-desc">20 turns total, each with a 60-second time limit. Auto-submits when time expires.</div></div>
+  <div class="step-card"><div class="step-num">3</div><div class="step-title">Check News</div><div class="step-desc">3 news articles per turn: Bullish(🟢), Bearish(🔴), Mixed(🟡) affecting prices.</div></div>
+  <div class="step-card"><div class="step-num">4</div><div class="step-title">Order & Submit</div><div class="step-desc">Set buy(red)/sell(blue) amounts per coin, then submit to execute and advance.</div></div>
+</div>
+
+<h2>💰 How to Trade</h2>
+<ul>
+  <li><span style="color:var(--buy)"><strong>Red buttons = Buy:</strong></span> Purchase coins in $5, $10, $30, $50 increments or custom amounts</li>
+  <li><span style="color:var(--sell)"><strong>Blue buttons = Sell:</strong></span> Sell holdings back to cash</li>
+  <li><strong>Buy All:</strong> Invest all remaining cash in that coin</li>
+  <li><strong>Sell All:</strong> Sell entire position</li>
+  <li><strong>Reset:</strong> Cancel all pending orders</li>
+</ul>
+
+<h2>⚠️ Watch Out</h2>
+
+<div class="warn-box">
+  <strong>💀 Delisting:</strong> Scam coins may appear mid-game! They get delisted after 2-4 turns, and your holdings are <strong>completely wiped out</strong>. Watch for the ⚠️ marker.
+</div>
+
+<div class="warn-box">
+  <strong>📉 Inflation:</strong> 0.5% of your cash is deducted each turn as inflation. Standing idle means losing money!
+</div>
+
+<h2>📰 News System — Core Mechanic</h2>
+<p>The game's most important lesson: <strong>Don't blindly trust the news.</strong></p>
+
+<div class="strat-card">
+  <div class="strat-title">🎭 Fake News / Contrarian</div>
+  <div class="strat-body">Even with bullish news, prices can <strong>move in the opposite direction</strong>. Early turns (1-5): 35%, mid: 25%, late: 15% chance of reversal. <strong>Be most skeptical early on!</strong></div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">📊 Priced-In</div>
+  <div class="strat-body">Big news may already be anticipated by the market — only <strong>10-30% of the expected effect</strong> actually materializes. News size doesn't equal price movement.</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🔄 Mean Reversion</div>
+  <div class="strat-body">Coins that surged or crashed 8%+ last turn are likely to <strong>revert in the opposite direction</strong>. Buying after a surge is risky!</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🎲 News Reliability</div>
+  <div class="strat-body">All news affects prices by only 30-110%. The same bullish news might have a <strong>strong effect one turn and almost none the next</strong>.</div>
+</div>
+
+<div class="strat-card">
+  <div class="strat-title">🌪️ Market Noise</div>
+  <div class="strat-body">±4% random fluctuation is added every turn. <strong>Unpredictable movements</strong> unrelated to news always exist.</div>
+</div>
+
+<h2>🏆 Strategy Guide</h2>
+
+<div class="tip-box">
+  <strong>💡 Beginner Strategy:</strong><br>
+  • Start with small amounts ($5-$10) for the first 5 turns to observe market reactions<br>
+  • Wait 1 turn to see if news is accurate before investing<br>
+  • Never go all-in on one coin — diversification is key!
+</div>
+
+<div class="tip-box">
+  <strong>🔥 Intermediate Strategy:</strong><br>
+  • Consider selling coins that surged (mean reversion next turn)<br>
+  • Coins that crashed after bad news might be rebound opportunities (contrarian)<br>
+  • News reliability increases in later turns — act more aggressively then
+</div>
+
+<div class="tip-box">
+  <strong>👑 Advanced Strategy:</strong><br>
+  • Focus on <strong>chart trends and reversion patterns</strong> over news direction<br>
+  • Sell scam coins immediately or avoid them entirely<br>
+  • Holding cash is also a strategy — account for inflation but wait when uncertain
+</div>
+
+<h2>📊 Income Level Rankings</h2>
+<p>Game results assign income levels based on actual Korean investor return distribution statistics:</p>
+
+<table class="rank-table">
+  <tr><th>Level</th><th>Top %</th><th>Description</th></tr>
+  <tr><td style="color:#a78bfa;font-weight:700">Elite</td><td>Top 1%</td><td>Legendary investor</td></tr>
+  <tr><td style="color:#3b82f6;font-weight:700">Upper Class</td><td>Top 1-10%</td><td>Outstanding instincts</td></tr>
+  <tr><td style="color:#22c55e;font-weight:700">Upper Middle</td><td>Top 10-20%</td><td>Excellent performance</td></tr>
+  <tr><td style="color:#f59e0b;font-weight:700">Middle Class</td><td>Top 20-40%</td><td>Above average</td></tr>
+  <tr><td style="color:#fb923c;font-weight:700">Low Income</td><td>Top 40-60%</td><td>Room for improvement</td></tr>
+  <tr><td style="color:#f87171;font-weight:700">Poor</td><td>Top 60-80%</td><td>Needs work</td></tr>
+  <tr><td style="color:#ef4444;font-weight:700">Extreme Poverty</td><td>Top 80-100%</td><td>Try again!</td></tr>
+</table>
+
+<p style="font-size:12px;color:var(--muted);margin-top:8px;">* Source: Korea Capital Market Institute, NH/Shinhan Securities 2024-2025 Analysis (Individual investor return distribution)</p>
+
+</div>
+
+</div>
+
+<div class="footer-nav">
+  <a href="index.html">🎮 게임</a>
+  <a href="privacy.html">개인정보처리방침</a>
+  <a href="terms.html">이용약관</a>
+  <a href="about.html">소개/연락처</a>
+  <a href="guide.html">가이드</a>
+</div>
+
+<script>
+let lang='ko';
+function toggleLang(){
+  lang=lang==='ko'?'en':'ko';
+  document.getElementById('lk').className=lang==='ko'?'active':'';
+  document.getElementById('le').className=lang==='en'?'active':'';
+  document.querySelector('.ko').style.display=lang==='ko'?'block':'none';
+  document.querySelector('.en').style.display=lang==='en'?'block':'none';
+  document.getElementById('page-title').textContent=lang==='ko'?'게임 가이드':'Game Guide';
+}
+</script>
+</body>
+</html>

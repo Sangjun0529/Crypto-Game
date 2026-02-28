@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>소개/연락처 | 크립토 트레이더</title>
+<style>
+:root{--bg:#0b0f19;--card:#111827;--border:#1e2a3a;--text:#e5e7eb;--muted:#6b7280;--accent:#f59e0b;--profit:#22c55e;--loss:#ef4444;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Noto Sans KR',sans-serif;min-height:100vh;font-size:15px;line-height:1.8;}
+.page-header{background:var(--card);border-bottom:1px solid var(--border);padding:16px 28px;display:flex;align-items:center;gap:16px;}
+.page-header a{color:var(--accent);text-decoration:none;font-weight:700;font-size:14px;}
+.page-header a:hover{text-decoration:underline;}
+.page-header h1{font-size:20px;font-weight:800;color:var(--text);}
+.container{max-width:800px;margin:0 auto;padding:32px 24px 60px;}
+h2{font-size:18px;font-weight:800;color:var(--accent);margin:28px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+p,li{color:var(--text);font-size:14px;line-height:1.8;margin-bottom:8px;}
+ul{padding-left:20px;margin-bottom:12px;}
+.hero{text-align:center;padding:40px 20px;margin-bottom:24px;}
+.hero-logo{font-size:36px;font-weight:900;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.hero-sub{color:var(--muted);font-size:15px;}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;}
+.info-card h3{font-size:16px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.info-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;}
+.info-row:last-child{border-bottom:none;}
+.info-label{color:var(--muted);min-width:100px;font-weight:600;}
+.info-val{color:var(--text);}
+.info-val a{color:var(--accent);text-decoration:none;}
+.info-val a:hover{text-decoration:underline;}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0;}
+.feature-item{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;}
+.feature-icon{font-size:28px;margin-bottom:6px;}
+.feature-title{font-size:13px;font-weight:700;margin-bottom:4px;}
+.feature-desc{font-size:11px;color:var(--muted);}
+.disclaimer-box{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:16px;margin-top:20px;font-size:13px;color:#fca5a5;text-align:center;line-height:1.7;}
+.footer-nav{background:var(--card);border-top:1px solid var(--border);padding:16px 28px;text-align:center;font-size:12px;color:var(--muted);}
+.footer-nav a{color:var(--accent);text-decoration:none;margin:0 10px;}
+.footer-nav a:hover{text-decoration:underline;}
+.lang-toggle{display:inline-flex;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;font-size:12px;font-weight:700;user-select:none;margin-left:auto;}
+.lang-toggle span{padding:5px 10px;transition:all .2s;color:var(--muted);}
+.lang-toggle span.active{background:var(--accent);color:#000;border-radius:18px;}
+.en{display:none;}
+@media(max-width:600px){.container{padding:20px 14px 40px;} .feature-grid{grid-template-columns:1fr;} .page-header{padding:12px 14px;} .hero-logo{font-size:28px;}}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <a href="index.html">← 게임으로 돌아가기</a>
+  <h1 id="page-title">소개 / 연락처</h1>
+  <div class="lang-toggle" onclick="toggleLang()"><span id="lk" class="active">KO</span><span id="le">EN</span></div>
+</div>
+
+<div class="container">
+
+<!-- 한국어 -->
+<div class="ko">
+
+<div class="hero">
+  <div class="hero-logo">크립토 트레이더</div>
+  <div class="hero-sub">모의투자 시뮬레이터 — 뉴스를 믿지 마세요</div>
+</div>
+
+<div class="info-card">
+  <h3>🎮 서비스 소개</h3>
+  <p>크립토 트레이더는 가상의 암호화폐 시장을 배경으로 한 <strong>모의투자 시뮬레이터 게임</strong>입니다.</p>
+  <p>8개의 가상 코인을 20턴 동안 거래하며, 뉴스에 휘둘리지 않는 투자 판단력을 기르는 것이 목표입니다. 실제 돈이 걸리지 않는 안전한 환경에서 투자의 본질을 경험하세요.</p>
+</div>
+
+<div class="feature-grid">
+  <div class="feature-item"><div class="feature-icon">📰</div><div class="feature-title">뉴스 불신 알고리즘</div><div class="feature-desc">뉴스를 맹신하면 손실! 가짜 뉴스, 역행, 선반영 메커니즘 탑재</div></div>
+  <div class="feature-item"><div class="feature-icon">📊</div><div class="feature-title">실제 투자자 분포</div><div class="feature-desc">한국 실제 투자자 통계 기반 소득분위 산정</div></div>
+  <div class="feature-item"><div class="feature-icon">🌍</div><div class="feature-title">한/영 지원</div><div class="feature-desc">한국어·영어 완벽 이중언어 지원</div></div>
+  <div class="feature-item"><div class="feature-icon">💀</div><div class="feature-title">상장폐지 & 스캠</div><div class="feature-desc">현실처럼 스캠 코인 등장, 상장폐지 위험</div></div>
+</div>
+
+<div class="info-card">
+  <h3>👤 운영자 정보</h3>
+  <div class="info-row"><span class="info-label">운영자</span><span class="info-val">Sangjun</span></div>
+  <div class="info-row"><span class="info-label">GitHub</span><span class="info-val"><a href="https://github.com/Sangjun0529" target="_blank">github.com/Sangjun0529</a></span></div>
+  <div class="info-row"><span class="info-label">프로젝트</span><span class="info-val"><a href="https://github.com/Sangjun0529/Crypto-Game" target="_blank">Sangjun0529/Crypto-Game</a></span></div>
+</div>
+
+<div class="info-card">
+  <h3>📬 연락처</h3>
+  <p>서비스 관련 문의, 버그 신고, 제안 사항은 아래 방법으로 연락해 주세요:</p>
+  <div class="info-row"><span class="info-label">GitHub Issues</span><span class="info-val"><a href="https://github.com/Sangjun0529/Crypto-Game/issues" target="_blank">이슈 등록하기</a></span></div>
+</div>
+
+<h2>📄 관련 페이지</h2>
+<ul>
+  <li><a href="privacy.html" style="color:var(--accent)">개인정보처리방침</a> — 개인정보 수집 및 처리에 관한 안내</li>
+  <li><a href="terms.html" style="color:var(--accent)">이용약관</a> — 서비스 이용 조건 및 면책 조항</li>
+  <li><a href="guide.html" style="color:var(--accent)">게임 가이드</a> — 게임 방법, 전략 팁, 랭킹 기준</li>
+</ul>
+
+<div class="disclaimer-box">
+  ⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다.<br>
+  투자 조언을 제공하지 않으며, 실제 투자 손실에 대한 책임을 지지 않습니다.
+</div>
+
+</div>
+
+<!-- English -->
+<div class="en">
+
+<div class="hero">
+  <div class="hero-logo">Crypto Trader</div>
+  <div class="hero-sub">Mock Investment Simulator — Don't Trust the News</div>
+</div>
+
+<div class="info-card">
+  <h3>🎮 About the Service</h3>
+  <p>Crypto Trader is a <strong>mock investment simulator game</strong> set in a fictional cryptocurrency market.</p>
+  <p>Trade 8 virtual coins over 20 turns and develop investment judgment that isn't swayed by news. Experience the essence of investing in a safe environment with no real money at stake.</p>
+</div>
+
+<div class="feature-grid">
+  <div class="feature-item"><div class="feature-icon">📰</div><div class="feature-title">News Distrust Algorithm</div><div class="feature-desc">Blindly trusting news = losses! Fake news, contrarian, and priced-in mechanics</div></div>
+  <div class="feature-item"><div class="feature-icon">📊</div><div class="feature-title">Real Investor Distribution</div><div class="feature-desc">Income ranking based on actual Korean investor statistics</div></div>
+  <div class="feature-item"><div class="feature-icon">🌍</div><div class="feature-title">KO/EN Support</div><div class="feature-desc">Full bilingual support in Korean and English</div></div>
+  <div class="feature-item"><div class="feature-icon">💀</div><div class="feature-title">Delisting & Scams</div><div class="feature-desc">Scam coins appear just like reality, with delisting risk</div></div>
+</div>
+
+<div class="info-card">
+  <h3>👤 Operator Information</h3>
+  <div class="info-row"><span class="info-label">Operator</span><span class="info-val">Sangjun</span></div>
+  <div class="info-row"><span class="info-label">GitHub</span><span class="info-val"><a href="https://github.com/Sangjun0529" target="_blank">github.com/Sangjun0529</a></span></div>
+  <div class="info-row"><span class="info-label">Project</span><span class="info-val"><a href="https://github.com/Sangjun0529/Crypto-Game" target="_blank">Sangjun0529/Crypto-Game</a></span></div>
+</div>
+
+<div class="info-card">
+  <h3>📬 Contact</h3>
+  <p>For inquiries, bug reports, or suggestions, please contact us via:</p>
+  <div class="info-row"><span class="info-label">GitHub Issues</span><span class="info-val"><a href="https://github.com/Sangjun0529/Crypto-Game/issues" target="_blank">Submit an Issue</a></span></div>
+</div>
+
+<h2>📄 Related Pages</h2>
+<ul>
+  <li><a href="privacy.html" style="color:var(--accent)">Privacy Policy</a> — Information on data collection and processing</li>
+  <li><a href="terms.html" style="color:var(--accent)">Terms of Service</a> — Usage conditions and disclaimers</li>
+  <li><a href="guide.html" style="color:var(--accent)">Game Guide</a> — How to play, strategy tips, and ranking criteria</li>
+</ul>
+
+<div class="disclaimer-box">
+  ⚠️ This Service is a mock investment simulator for educational and entertainment purposes, unrelated to actual financial trading.<br>
+  It does not provide investment advice and assumes no responsibility for actual investment losses.
+</div>
+
+</div>
+
+</div>
+
+<div class="footer-nav">
+  <a href="index.html">🎮 게임</a>
+  <a href="privacy.html">개인정보처리방침</a>
+  <a href="terms.html">이용약관</a>
+  <a href="about.html">소개/연락처</a>
+  <a href="guide.html">가이드</a>
+</div>
+
+<script>
+let lang='ko';
+function toggleLang(){
+  lang=lang==='ko'?'en':'ko';
+  document.getElementById('lk').className=lang==='ko'?'active':'';
+  document.getElementById('le').className=lang==='en'?'active':'';
+  document.querySelector('.ko').style.display=lang==='ko'?'block':'none';
+  document.querySelector('.en').style.display=lang==='en'?'block':'none';
+  document.getElementById('page-title').textContent=lang==='ko'?'소개 / 연락처':'About / Contact';
+}
+</script>
+</body>
+</html>

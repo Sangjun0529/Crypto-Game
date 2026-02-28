@@ -184,6 +184,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .ad-banner-top{display:none;}
 .ad-banner-infeed{display:none;}
 
+/* ─── 푸터 네비게이션 ─── */
+.game-footer{background:var(--card);border-top:1px solid var(--border);padding:10px 20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.8;}
+.game-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
+.game-footer a:hover{text-decoration:underline;}
+.game-footer .disclaimer-inline{font-size:10px;color:#6b7280;margin-top:4px;}
+
 /* ─── 모바일 접이식 주문 ─── */
 .order-toggle{display:none;width:100%;padding:6px;font-size:11px;font-weight:700;color:var(--accent);background:#0d1117;border:none;border-top:1px solid var(--border);cursor:pointer;text-align:center;}
 .order-row.collapsed{display:none !important;}
@@ -453,6 +459,10 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   </div>
   <div class="result-card" id="result-card" style="display:none;"></div>
   <button class="start-btn" id="start-btn">게임 시작</button>
+  <div id="overlay-disclaimer" style="margin-top:16px;font-size:10px;color:#6b7280;text-align:center;max-width:480px;line-height:1.6;">
+    ⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다.<br>
+    <a href="terms.html" style="color:#f59e0b;text-decoration:none;">이용약관</a> · <a href="privacy.html" style="color:#f59e0b;text-decoration:none;">개인정보처리방침</a> · <a href="guide.html" style="color:#f59e0b;text-decoration:none;">가이드</a>
+  </div>
 </div>
 
 <!-- 모바일 사이드바 토글 -->
@@ -460,6 +470,19 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
 <div class="sys-news hidden" id="sys-news"></div>
+
+<!-- 푸터 네비게이션 -->
+<div class="game-footer" id="game-footer">
+  <div>
+    <a href="privacy.html">개인정보처리방침</a>
+    <a href="terms.html">이용약관</a>
+    <a href="about.html">소개/연락처</a>
+    <a href="guide.html">게임 가이드</a>
+  </div>
+  <div class="disclaimer-inline" id="footer-disclaimer">
+    ⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다. 투자 조언을 제공하지 않습니다.
+  </div>
+</div>
 
 <script>
 // ════════════════════════════════════════════════
@@ -488,7 +511,9 @@ const T={
     adCountdown:'%s초 후 결과를 확인할 수 있습니다...',adLoading:'결과를 불러오는 중...',
     grades:['극빈층','빈곤층','저소득층','중산층','고소득층','상류층','최상류층'],
     gradeTicks:['극빈','빈곤','저소득','중산','고소득','상류','최상류'],
-    curveLow:'하위',curveMid:'중간',curveHigh:'상위',curveMany:'많음',curveFew:'적음',curveMe:'▼ 나'
+    curveLow:'하위',curveMid:'중간',curveHigh:'상위',curveMany:'많음',curveFew:'적음',curveMe:'▼ 나',
+    footerDisclaimer:'⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다. 투자 조언을 제공하지 않습니다.',
+    overlayDisclaimer:'⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다.'
   },
   en:{
     logo:'Crypto Trader',cash:'Cash',coinAsset:'Holdings',totalAsset:'Total',pnl:'P&L',timeLeft:'⏱ Time Left',
@@ -509,7 +534,9 @@ const T={
     adCountdown:'Results in %s seconds...',adLoading:'Loading results...',
     grades:['Extreme Poverty','Poor','Low Income','Middle Class','Upper Middle','Upper Class','Elite'],
     gradeTicks:['Poor','Low','Mid-Low','Middle','Upper','Elite','Top'],
-    curveLow:'Low',curveMid:'Mid',curveHigh:'Top',curveMany:'Many',curveFew:'Few',curveMe:'▼ Me'
+    curveLow:'Low',curveMid:'Mid',curveHigh:'Top',curveMany:'Many',curveFew:'Few',curveMe:'▼ Me',
+    footerDisclaimer:'⚠️ This is a mock investment simulator for educational/entertainment purposes, unrelated to actual financial trading.',
+    overlayDisclaimer:'⚠️ This is a mock investment simulator for educational/entertainment purposes, unrelated to actual trading.'
   }
 };
 
@@ -1442,6 +1469,13 @@ function updateStaticUI(){
   document.querySelector('.reset-btn').textContent=t('reset');
   // 광고
   document.querySelector('.ad-label').textContent=lang==='en'?'AD':'광고';
+  // 면책 조항
+  const fd=document.getElementById('footer-disclaimer');if(fd)fd.textContent=t('footerDisclaimer');
+  const od=document.getElementById('overlay-disclaimer');if(od)od.innerHTML=t('overlayDisclaimer')+'<br><a href="terms.html" style="color:#f59e0b;text-decoration:none;">'+(lang==='en'?'Terms':'이용약관')+'</a> · <a href="privacy.html" style="color:#f59e0b;text-decoration:none;">'+(lang==='en'?'Privacy':'개인정보처리방침')+'</a> · <a href="guide.html" style="color:#f59e0b;text-decoration:none;">'+(lang==='en'?'Guide':'가이드')+'</a>';
+  // 푸터 링크 텍스트
+  const fLinks=document.querySelectorAll('#game-footer > div:first-child a');
+  const fTexts=lang==='en'?['Privacy Policy','Terms of Service','About/Contact','Game Guide']:['개인정보처리방침','이용약관','소개/연락처','게임 가이드'];
+  fLinks.forEach((a,i)=>{if(fTexts[i])a.textContent=fTexts[i];});
 }
 </script>
 </body>

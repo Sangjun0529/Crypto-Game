@@ -176,6 +176,18 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .ad-countdown{font-size:14px;color:var(--accent);margin-top:12px;font-weight:600;}
 .ad-slot-box{min-height:250px;display:flex;align-items:center;justify-content:center;background:#0d1117;border-radius:8px;margin:8px 0;}
 
+/* ─── AdSense 인게임 배너 ─── */
+.ad-banner{background:var(--card);border:1px solid var(--border);border-radius:8px;text-align:center;overflow:hidden;}
+.ad-banner .ad-label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;padding:4px 0 2px;}
+.ad-banner-sidebar{margin-top:auto;padding:8px;}
+.ad-banner-sidebar .ad-slot-inline{min-height:250px;background:#0d1117;border-radius:6px;}
+.ad-banner-top{display:none;}
+.ad-banner-infeed{display:none;}
+
+/* ─── 모바일 접이식 주문 ─── */
+.order-toggle{display:none;width:100%;padding:6px;font-size:11px;font-weight:700;color:var(--accent);background:#0d1117;border:none;border-top:1px solid var(--border);cursor:pointer;text-align:center;}
+.order-row.collapsed{display:none !important;}
+
 /* ─── 모바일 사이드바 토글 ─── */
 .mobile-sidebar-toggle{display:none;}
 .sidebar-overlay{display:none;}
@@ -194,16 +206,16 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   body{font-size:14px;-webkit-text-size-adjust:100%;}
 
   /* 헤더: 2행 컴팩트 */
-  header{flex-wrap:wrap;padding:8px 12px;gap:6px;}
-  .logo{font-size:18px;flex:1;}
-  .header-stats{gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+  header{flex-wrap:wrap;padding:6px 10px;gap:4px;}
+  .logo{font-size:16px;flex:1;}
+  .header-stats{gap:6px;flex-wrap:wrap;justify-content:flex-end;}
   .stat{display:block!important;}
-  .stat-label{font-size:9px;letter-spacing:0;}
-  .stat-val{font-size:14px;}
-  .timer-box{padding:6px 14px;min-width:80px;border-radius:8px;}
-  .timer-label{font-size:9px;letter-spacing:.5px;}
-  .timer-val{font-size:34px;text-shadow:0 0 12px rgba(245,158,11,.3);}
-  .turn-badge{font-size:11px;padding:2px 7px;}
+  .stat-label{font-size:8px;letter-spacing:0;}
+  .stat-val{font-size:13px;}
+  .timer-box{padding:4px 10px;min-width:60px;border-radius:6px;}
+  .timer-label{font-size:8px;letter-spacing:.5px;}
+  .timer-val{font-size:28px;text-shadow:0 0 12px rgba(245,158,11,.3);}
+  .turn-badge{font-size:10px;padding:2px 6px;}
 
   /* 메인: 세로 레이아웃 */
   .main-layout{flex-direction:column;}
@@ -222,46 +234,47 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .sidebar-overlay.show{display:block;}
   .mobile-sidebar-toggle{
     display:flex;align-items:center;justify-content:center;
-    position:fixed;bottom:70px;left:10px;z-index:100;
-    width:44px;height:44px;border-radius:50%;
-    background:var(--accent);color:#000;font-size:18px;font-weight:900;
+    position:fixed;bottom:54px;left:8px;z-index:100;
+    width:40px;height:40px;border-radius:50%;
+    background:var(--accent);color:#000;font-size:16px;font-weight:900;
     border:none;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,.4);
   }
 
-  /* 코인 영역 */
-  .coin-area{grid-template-columns:1fr;padding:8px 8px 80px;gap:8px;}
+  /* ★ 코인 영역: 2열 그리드로 8개 카드 한 화면에 */
+  .coin-area{grid-template-columns:1fr 1fr;padding:4px 4px 60px;gap:4px;}
 
-  /* 코인 카드 */
-  .coin-header{padding:8px 10px;gap:8px;}
-  .coin-icon{width:32px;height:32px;font-size:13px;}
-  .coin-name{font-size:14px;}
-  .coin-sym{font-size:11px;}
-  .coin-price{font-size:17px;}
-  .coin-change{font-size:13px;padding:2px 6px;}
-  .coin-change.big-up,.coin-change.big-down{font-size:15px;}
-  .coin-hold-qty{font-size:13px;}
-  .coin-hold-val{font-size:10px;}
-  .coin-hold-label{font-size:9px;}
+  /* ★ 코인 카드 초소형화 */
+  .coin-header{padding:4px 6px;gap:4px;}
+  .coin-icon{width:22px;height:22px;font-size:10px;}
+  .coin-title{min-width:0;}
+  .coin-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .coin-sym{font-size:9px;}
+  .coin-price{font-size:13px;}
+  .coin-change{font-size:10px;padding:1px 4px;}
+  .coin-change.big-up,.coin-change.big-down{font-size:11px;}
+  .coin-hold{display:none;}
+  .coin-price-area{text-align:right;}
 
-  /* 차트 */
-  .chart-area{height:90px;padding:4px 8px;}
+  /* ★ 차트 초소형 */
+  .chart-area{height:48px;padding:2px 4px;}
 
-  /* 주문 버튼 — 모바일 터치 최적화 */
-  .order-row{padding:6px 6px;gap:4px;flex-wrap:wrap;justify-content:center;}
-  .order-btn{min-width:40px;max-width:56px;padding:8px 2px;font-size:11px;border-radius:5px;-webkit-tap-highlight-color:transparent;}
-  .order-btn.all-sell,.order-btn.all-buy{font-size:9px;padding:6px 2px;}
-  .order-divider{height:20px;margin:0 1px;}
-  .order-custom{width:44px;padding:6px 2px;font-size:11px;}
-  .order-pending{min-width:60px;font-size:10px;padding:4px 2px;}
+  /* ★ 주문 버튼: 기본 숨김, 탭하면 열림 */
+  .order-toggle{display:block;}
+  .order-row{padding:4px 4px;gap:2px;flex-wrap:wrap;justify-content:center;}
+  .order-btn{min-width:32px;max-width:44px;padding:6px 1px;font-size:9px;border-radius:4px;-webkit-tap-highlight-color:transparent;}
+  .order-btn.all-sell,.order-btn.all-buy{font-size:8px;padding:5px 1px;}
+  .order-divider{height:16px;margin:0 1px;}
+  .order-custom{width:36px;padding:4px 1px;font-size:9px;}
+  .order-pending{min-width:50px;font-size:9px;padding:3px 2px;}
 
   /* 하단바 */
-  .bottom-bar{padding:8px 10px;gap:8px;}
-  .pending-summary{font-size:11px;}
-  .submit-btn{padding:10px 18px;font-size:14px;border-radius:8px;}
-  .reset-btn{padding:8px 12px;font-size:12px;}
+  .bottom-bar{padding:6px 8px;gap:6px;}
+  .pending-summary{font-size:10px;}
+  .submit-btn{padding:8px 14px;font-size:13px;border-radius:6px;}
+  .reset-btn{padding:6px 10px;font-size:11px;}
 
   /* 시스템 뉴스 */
-  .sys-news{bottom:56px;font-size:11px;padding:6px 12px;max-width:90vw;white-space:normal;text-align:center;}
+  .sys-news{bottom:48px;font-size:10px;padding:4px 10px;max-width:90vw;white-space:normal;text-align:center;}
 
   /* 오버레이/결과 — 모바일 스크롤 */
   #overlay{overflow-y:auto;padding:20px 16px;justify-content:flex-start;padding-top:10vh;}
@@ -285,30 +298,51 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .news-card.main-news .news-headline{font-size:14px;}
   .news-headline{font-size:12px;}
   .news-detail{font-size:10px;}
+
+  /* 모바일 광고: 상단 배너 표시, 사이드바 광고 숨김 */
+  .ad-banner-top{display:block;padding:4px;margin:0 4px 2px;}
+  .ad-banner-top .ad-slot-inline{min-height:50px;background:#0d1117;border-radius:4px;}
+  .ad-banner-sidebar{display:none;}
+  .ad-banner-infeed{display:block;padding:4px;grid-column:1/-1;}
+  .ad-banner-infeed .ad-slot-inline{min-height:50px;background:#0d1117;border-radius:4px;}
 }
 
 /* ═══ 매우 작은 화면 (480px 이하) ═══ */
 @media(max-width:480px){
-  header{padding:6px 8px;}
-  .logo{font-size:15px;}
-  .lang-toggle span{padding:3px 7px;font-size:10px;}
-  .header-stats{gap:5px;}
-  .stat-label{font-size:8px;}
-  .stat-val{font-size:12px;}
-  .timer-box{padding:4px 10px;min-width:60px;}
-  .timer-val{font-size:28px;}
-  .coin-area{padding:6px 4px 76px;gap:6px;}
-  .coin-header{padding:6px 8px;gap:6px;}
-  .coin-icon{width:28px;height:28px;font-size:12px;}
-  .coin-name{font-size:13px;}
-  .coin-price{font-size:15px;}
-  .coin-change{font-size:12px;padding:2px 5px;}
-  .chart-area{height:80px;}
-  .order-btn{min-width:36px;font-size:10px;padding:7px 1px;}
-  .bottom-bar{padding:6px 8px;}
-  .submit-btn{padding:8px 14px;font-size:13px;}
-  .reset-btn{padding:6px 10px;font-size:11px;}
-  .mobile-sidebar-toggle{width:38px;height:38px;font-size:16px;bottom:58px;left:6px;}
+  header{padding:4px 6px;}
+  .logo{font-size:14px;}
+  .lang-toggle span{padding:2px 6px;font-size:9px;}
+  .header-stats{gap:4px;}
+  .stat-label{font-size:7px;}
+  .stat-val{font-size:11px;}
+  .timer-box{padding:3px 8px;min-width:50px;}
+  .timer-val{font-size:24px;}
+  .coin-area{padding:3px 3px 56px;gap:3px;}
+  .coin-header{padding:3px 5px;gap:3px;}
+  .coin-icon{width:18px;height:18px;font-size:8px;}
+  .coin-name{font-size:10px;}
+  .coin-sym{font-size:8px;}
+  .coin-price{font-size:11px;}
+  .coin-change{font-size:9px;padding:1px 3px;}
+  .chart-area{height:40px;padding:1px 3px;}
+  .order-btn{min-width:28px;font-size:8px;padding:5px 1px;}
+  .order-btn.all-sell,.order-btn.all-buy{font-size:7px;}
+  .order-custom{width:32px;font-size:8px;}
+  .order-pending{min-width:40px;font-size:8px;}
+  .bottom-bar{padding:4px 6px;}
+  .submit-btn{padding:7px 12px;font-size:12px;}
+  .reset-btn{padding:5px 8px;font-size:10px;}
+  .mobile-sidebar-toggle{width:34px;height:34px;font-size:14px;bottom:48px;left:4px;}
+}
+
+/* ═══ 매우 작은 높이 (667px 이하, SE 등) ═══ */
+@media(max-width:768px) and (max-height:667px){
+  .chart-area{height:35px;}
+  .coin-header{padding:2px 4px;gap:2px;}
+  .coin-icon{width:16px;height:16px;font-size:7px;}
+  .coin-name{font-size:9px;}
+  .coin-price{font-size:10px;}
+  .coin-change{font-size:8px;}
 }
 </style>
 </head>
@@ -364,7 +398,23 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
       <div class="sb-title">📰 이번 턴 속보</div>
       <div id="news-cards"></div>
     </div>
+
+    <!-- 사이드바 하단 광고 (데스크톱) -->
+    <div class="ad-banner ad-banner-sidebar">
+      <div class="ad-label">AD</div>
+      <div class="ad-slot-inline">
+        <ins class="adsbygoogle" style="display:block;width:100%;min-height:250px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="rectangle" data-full-width-responsive="false"></ins>
+      </div>
+    </div>
   </aside>
+
+  <!-- 모바일 상단 배너 광고 -->
+  <div class="ad-banner ad-banner-top">
+    <div class="ad-label">AD</div>
+    <div class="ad-slot-inline">
+      <ins class="adsbygoogle" style="display:block;width:100%;min-height:50px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+    </div>
+  </div>
 
   <!-- ═══ 오른쪽 코인 영역 ═══ -->
   <div class="coin-area" id="coin-container"></div>
@@ -827,7 +877,7 @@ function simulateNextTurn(){
 function buildCoinCards(){
   const ct=document.getElementById('coin-container');ct.innerHTML='';
   const totalAsset=getTotalAsset()||1;
-  for(const c of COINS){
+  for(let idx=0;idx<COINS.length;idx++){const c=COINS[idx];
     const sym=c.sym,p=prices[sym]||c.baseP,ch=changes[sym]||0,isUp=ch>=0,isDead=delistedSet.has(sym);
     const h=holdings[sym],hQty=h?h.qty:0,hq=hQty*p;
     const holdRatio=hq/totalAsset*100;
@@ -843,14 +893,19 @@ function buildCoinCards(){
       else if(holdRatio>10){sec.style.border=`2px solid ${col}80`;sec.style.boxShadow=`0 0 8px ${col}25`;}
       else{sec.style.border=`1px solid ${col}4d`;}
     }
+    const isMobile=window.innerWidth<=768;
+    const holdHtml=isMobile?'':`<div class="coin-hold"><div class="coin-hold-label">${t('hold')}</div><div class="coin-hold-qty">$${hq.toFixed(0)}</div><div class="coin-hold-val">${hQty.toFixed(4)} ${sym}</div></div>`;
+    const pendingLabel=orders[sym]?(orders[sym]>0?`${t('buy')}$${orders[sym]}`:`${t('sell')}$${Math.abs(orders[sym])}`):'';
+    const orderToggleText=isMobile?(pendingLabel||`▼ ${lang==='en'?'Trade':'주문'}`):'';
     sec.innerHTML=`<div class="coin-header">
       <div class="coin-icon" style="background:${c.color}">${sym[0]}</div>
-      <div class="coin-title"><div class="coin-name">${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym}</div></div>
-      <div class="coin-hold"><div class="coin-hold-label">${t('hold')}</div><div class="coin-hold-qty">$${hq.toFixed(0)}</div><div class="coin-hold-val">${hQty.toFixed(4)} ${sym}</div></div>
+      <div class="coin-title"><div class="coin-name">${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym}${isMobile&&hq>0?' · $'+hq.toFixed(0):''}</div></div>
+      ${holdHtml}
       <div class="coin-price-area"><div class="coin-price">$${p.toFixed(2)}</div><div class="coin-change ${cc}">${isUp?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
     </div>
     <div class="chart-area"><canvas id="chart-${sym}"></canvas></div>
-    <div class="order-row" id="order-${sym}">
+    <button class="order-toggle" id="toggle-${sym}" onclick="toggleOrder('${sym}')">${orderToggleText}</button>
+    <div class="order-row${isMobile?' collapsed':''}" id="order-${sym}">
       <button class="order-btn all-sell sell" onclick="sellAll('${sym}',this)">${t('sellAll')}</button>
       <input class="order-custom" type="number" min="5" step="5" placeholder="${t('custom')}" id="cs-${sym}">
       <button class="order-btn sell" onclick="setOrder('${sym}',-50,this)">$50</button>
@@ -867,6 +922,13 @@ function buildCoinCards(){
       <div class="order-pending" id="pending-${sym}"></div>
     </div>`;
     ct.appendChild(sec);
+    // 4번째 카드 뒤에 인피드 광고 삽입 (모바일)
+    if(isMobile&&idx===3){
+      const adDiv=document.createElement('div');adDiv.className='ad-banner ad-banner-infeed';
+      adDiv.innerHTML='<div class="ad-label">AD</div><div class="ad-slot-inline"><ins class="adsbygoogle" style="display:block;width:100%;min-height:50px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="fluid" data-full-width-responsive="true"></ins></div>';
+      ct.appendChild(adDiv);
+      try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+    }
     document.getElementById(`cs-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,-v,null);this.value='';});
     document.getElementById(`cb-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,v,null);this.value='';});
   }
@@ -932,6 +994,15 @@ function updateOD(sym){
   if(!v){el.textContent='';el.className='order-pending';return;}
   if(v>0){el.textContent=`${t('buy')} $${v}`;el.className='order-pending buy-pending';}
   else{el.textContent=`${t('sell')} $${Math.abs(v)}`;el.className='order-pending sell-pending';}
+  // 모바일 토글 버튼 텍스트 업데이트
+  const tb=document.getElementById(`toggle-${sym}`);
+  if(tb&&window.innerWidth<=768){
+    const row=document.getElementById(`order-${sym}`);
+    if(row&&row.classList.contains('collapsed')){
+      tb.textContent=v?(v>0?`${t('buy')}$${v}`:`${t('sell')}$${Math.abs(v)}`):`▼ ${lang==='en'?'Trade':'주문'}`;
+      tb.style.color=v>0?'var(--buy)':v<0?'var(--sell)':'var(--accent)';
+    }
+  }
 }
 function updatePS(){
   let b=0,s=0,c=0;
@@ -1041,6 +1112,8 @@ function startGame(){
   document.getElementById('overlay').classList.add('hidden');
   renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();resetTimer();
   showSysNews(t('gameStart'));
+  // 광고 초기화
+  try{document.querySelectorAll('.ad-banner ins.adsbygoogle').forEach(()=>{(adsbygoogle=window.adsbygoogle||[]).push({});});}catch(e){}
 }
 // ═══ 실제 투자자 수익률 분포 기반 상위 % 계산 ═══
 // 실제 통계: 60%가 손실, 수익자 중 과반이 소액, 좌편향 분포
@@ -1297,6 +1370,29 @@ document.getElementById('start-btn').addEventListener('click',()=>startGame());
 function toggleSidebar(){
   const sb=document.querySelector('.sidebar'),ov=document.getElementById('sidebar-overlay');
   sb.classList.toggle('open');ov.classList.toggle('show');
+}
+
+// ═══ 모바일 주문 패널 토글 ═══
+function toggleOrder(sym){
+  const row=document.getElementById(`order-${sym}`);
+  const btn=document.getElementById(`toggle-${sym}`);
+  if(row.classList.contains('collapsed')){
+    // 다른 열린 패널 모두 닫기
+    document.querySelectorAll('.order-row:not(.collapsed)').forEach(r=>{
+      if(window.innerWidth<=768&&r.id!==`order-${sym}`){
+        r.classList.add('collapsed');
+        const s=r.id.replace('order-','');
+        const tb=document.getElementById(`toggle-${s}`);
+        if(tb){const ov=orders[s];tb.textContent=ov?(ov>0?`${t('buy')}$${ov}`:`${t('sell')}$${Math.abs(ov)}`):`▼ ${lang==='en'?'Trade':'주문'}`;}
+      }
+    });
+    row.classList.remove('collapsed');
+    btn.textContent=`▲ ${lang==='en'?'Close':'닫기'}`;
+  }else{
+    row.classList.add('collapsed');
+    const ov=orders[sym];
+    btn.textContent=ov?(ov>0?`${t('buy')}$${ov}`:`${t('sell')}$${Math.abs(ov)}`):`▼ ${lang==='en'?'Trade':'주문'}`;
+  }
 }
 
 // 결과 캔버스 모바일 리사이즈

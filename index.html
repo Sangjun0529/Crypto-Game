@@ -1117,11 +1117,14 @@ function simulateNextTurn(){
     if(Math.abs(prevChange)>8){base+=-prevChange*(0.2+Math.random()*0.3);}
     const chaos=(Math.random()-0.5)*8*volMult;
     let total=base+crowd+chaos;
-    // 신규 코인: 문샷 기회 (8% 확률 대폭 상승, 3% 확률 초대박)
+    // 신규 코인: 지수 확률분포 변동성 (높은 변동폭 = 낮은 확률, 최대 300%)
     if(newCoinSet.has(c.sym)){
-      if(Math.random()<0.03)total+=60+Math.random()*40; // 초대박: +60~100%
-      else if(Math.random()<0.08)total+=30+Math.random()*30; // 대폭 상승: +30~60%
-      total=Math.max(-40,Math.min(100,total)); // 신규: -40% ~ +100%
+      // -ln(U) 지수분포: 평균 ~35%, 꼬리가 긴 분포로 극단적 상승 가능
+      const u=Math.random();
+      const expSpike=-Math.log(1-u*0.9999)*35; // 평균 35, 극단값 ~200-300
+      if(Math.random()<0.55) total+=expSpike; // 55% 확률로 상승 스파이크
+      else total-=expSpike*0.4; // 45% 확률로 하락 (상승보다 약하게)
+      total=Math.max(-60,Math.min(300,total)); // 신규: -60% ~ +300%
     }else{
       total=Math.max(-30,Math.min(35,total)); // 기존: -30% ~ +35%
     }
@@ -1229,7 +1232,7 @@ function buildCoinCards(){
     const orderToggleText=isMobile?(pendingLabel||`▼ ${lang==='en'?'Trade':'주문'}`):'';
     sec.innerHTML=`<div class="coin-header">
       <div class="coin-icon" style="background:${c.color}">${sym[0]}</div>
-      <div class="coin-title"><div class="coin-name">${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym} · $${p.toFixed(2)}</div></div>
+      <div class="coin-title"><div class="coin-name">${coinName(c)} ${isDead?'💀':''}</div><div class="coin-sym">${sym} · $${p.toFixed(2)}</div></div>
       <div class="coin-price-area"><div class="coin-change ${cc}">${isUp?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
       ${holdHtml}
     </div>
@@ -1342,7 +1345,7 @@ function openCoinDetail(sym){
   }
   inner.innerHTML=`<div class="cd-header">
     <div class="cd-icon" style="background:${c.color}">${sym[0]}</div>
-    <div class="cd-title"><div class="cd-name">${coinName(c)} ${c.isScam?'⚠️':''}</div><div class="cd-sym">${sym}</div></div>
+    <div class="cd-title"><div class="cd-name">${coinName(c)}</div><div class="cd-sym">${sym}</div></div>
     <button class="cd-close" onclick="closeCoinDetail()">✕</button>
   </div>
   <div class="cd-stats">

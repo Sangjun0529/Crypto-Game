@@ -207,15 +207,15 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .order-row.collapsed{display:none !important;}
 
 /* ─── 모바일 슬라이더 주문 ─── */
-.order-slider-wrap{display:none;padding:0 6px;background:#0d1117;border-top:1px solid var(--border);position:relative;height:26px;}
-.order-slider-labels{display:flex;justify-content:space-between;align-items:center;font-size:7px;font-weight:800;pointer-events:none;position:absolute;top:0;left:6px;right:6px;height:100%;z-index:1;}
-.order-slider-labels .sell-label{color:var(--sell);opacity:.6;}
-.order-slider-labels .buy-label{color:var(--buy);opacity:.6;}
-.order-slider-row{position:relative;height:100%;display:flex;align-items:center;}
-.order-slider{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--sell),#1f2937 45%,#1f2937 55%,var(--buy));}
-.order-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:22px;border-radius:3px;background:var(--accent);border:1px solid rgba(255,255,255,.5);cursor:pointer;box-shadow:0 0 6px rgba(245,158,11,.4);}
-.order-slider::-moz-range-thumb{width:10px;height:22px;border-radius:3px;background:var(--accent);border:1px solid rgba(255,255,255,.5);cursor:pointer;box-shadow:0 0 6px rgba(245,158,11,.4);}
-.order-slider-val{position:absolute;top:1px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:800;white-space:nowrap;pointer-events:none;z-index:2;text-shadow:0 1px 3px rgba(0,0,0,.8);}
+.order-slider-wrap{display:none;padding:2px 6px 0;background:#0d1117;border-top:1px solid var(--border);}
+.order-slider-row{display:flex;align-items:center;height:16px;}
+.order-slider{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:2px;outline:none;cursor:pointer;background:linear-gradient(90deg,var(--sell),#1f2937 45%,#1f2937 55%,var(--buy));margin:0;}
+.order-slider::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:18px;border-radius:3px;background:var(--accent);border:1px solid rgba(255,255,255,.5);cursor:pointer;box-shadow:0 0 6px rgba(245,158,11,.4);}
+.order-slider::-moz-range-thumb{width:10px;height:18px;border-radius:3px;background:var(--accent);border:1px solid rgba(255,255,255,.5);cursor:pointer;box-shadow:0 0 6px rgba(245,158,11,.4);}
+.order-slider-labels{display:flex;justify-content:space-between;align-items:center;height:14px;padding:0 2px;}
+.order-slider-labels .sell-label{color:var(--sell);font-size:8px;font-weight:800;}
+.order-slider-labels .buy-label{color:var(--buy);font-size:8px;font-weight:800;}
+.order-slider-val{font-size:9px;font-weight:800;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.8);}
 
 /* ─── 모바일 사이드바 토글 ─── */
 .mobile-sidebar-toggle{display:none;}
@@ -356,9 +356,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .coin-price{font-size:9px;}
   .coin-change{font-size:9px;padding:1px 3px;}
   .coin-hold-qty{font-size:11px!important;}
-  .chart-area{height:30px;padding:1px 3px;}
-  .order-slider-wrap{height:22px;}
-  .order-slider::-webkit-slider-thumb{width:8px;height:18px;}
+  .chart-area{height:26px;padding:1px 3px;}
+  .order-slider-labels{height:12px;}
+  .order-slider-labels .sell-label,.order-slider-labels .buy-label{font-size:7px;}
   .order-slider-val{font-size:8px;}
   .bottom-bar{padding:4px 6px;}
   .submit-btn{padding:7px 12px;font-size:12px;}
@@ -979,9 +979,8 @@ function buildCoinCards(){
     </div>
     <div class="chart-area"><canvas id="chart-${sym}"></canvas></div>
     ${isMobile?`<div class="order-slider-wrap" id="slider-wrap-${sym}">
-      <div class="order-slider-labels"><span class="sell-label">${lang==='en'?'Sell All':'전액매도'}</span><span class="buy-label">${lang==='en'?'Buy All':'전액매수'}</span></div>
       <div class="order-slider-row"><input type="range" class="order-slider" id="slider-${sym}" min="-100" max="100" value="0" oninput="onSliderInput('${sym}',this.value)" onchange="onSliderChange('${sym}',this.value)"></div>
-      <div class="order-slider-val" id="slider-val-${sym}"></div>
+      <div class="order-slider-labels"><span class="sell-label">${lang==='en'?'Sell All':'전액매도'}</span><span class="order-slider-val" id="slider-val-${sym}"></span><span class="buy-label">${lang==='en'?'Buy All':'전액매수'}</span></div>
     </div>`:''}
     <button class="order-toggle" id="toggle-${sym}" onclick="toggleOrder('${sym}')">${orderToggleText}</button>
     <div class="order-row${isMobile?' collapsed':''}" id="order-${sym}">

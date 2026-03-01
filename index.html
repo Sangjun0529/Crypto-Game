@@ -259,6 +259,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .mtg-fill.ending{background:linear-gradient(90deg,#ef4444,#f87171);}
 .mtg-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);}
 
+/* ─── 사이드바 내 언어 토글 (데스크톱에선 숨김) ─── */
+.sb-lang-toggle{display:none;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border:1px solid var(--border);border-radius:10px;}
+.sb-lang-toggle .sb-lang-label{font-size:13px;font-weight:700;color:var(--muted);}
+.sb-lang-toggle .lang-toggle{display:flex !important;}
+
 /* ─── 모바일 사이드바 토글 ─── */
 .mobile-sidebar-toggle{display:none;}
 .sidebar-overlay{display:none;}
@@ -276,18 +281,19 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 @media(max-width:768px){
   body{font-size:15px;-webkit-text-size-adjust:100%;}
 
-  /* 헤더: 2행 컴팩트 */
-  header{flex-wrap:wrap;padding:8px 10px;gap:4px;}
-  .logo{font-size:16px;flex:1;}
-  .header-stats{gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-  .stat{display:block!important;}
-  .stat-label{font-size:10px;letter-spacing:0;}
-  .stat-val{font-size:15px;}
-  .timer-box{padding:4px 10px;min-width:60px;border-radius:6px;}
-  .timer-label{font-size:10px;letter-spacing:.5px;}
-  .timer-val{font-size:28px;text-shadow:0 0 12px rgba(245,158,11,.3);}
-  .turn-badge{font-size:12px;padding:2px 6px;}
-  .lang-toggle span{padding:4px 8px;font-size:12px;}
+  /* 헤더: 1행 고정 */
+  header{flex-wrap:nowrap;padding:6px 10px;gap:6px;}
+  .logo{font-size:13px;flex-shrink:0;line-height:1.1;letter-spacing:1px;}
+  .header-stats{gap:8px;flex-wrap:nowrap;justify-content:flex-end;overflow:hidden;}
+  .stat{display:block!important;flex-shrink:0;}
+  .stat-label{font-size:9px;letter-spacing:0;}
+  .stat-val{font-size:14px;}
+  .timer-box{padding:3px 8px;min-width:auto;border-radius:6px;}
+  .timer-label{display:none;}
+  .timer-val{font-size:24px;text-shadow:0 0 12px rgba(245,158,11,.3);}
+  .turn-badge{font-size:11px;padding:2px 5px;}
+  /* 언어 토글은 사이드바로 이동 → 헤더에서 숨김 */
+  .lang-toggle{display:none !important;}
 
   /* 메인: 세로 레이아웃 */
   .main-layout{flex-direction:column;}
@@ -315,17 +321,17 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   /* ★ 코인 영역: 2열 그리드 */
   .coin-area{grid-template-columns:1fr 1fr;padding:4px 4px 60px;gap:5px;}
 
-  /* ★ 코인 카드 */
-  .coin-header{padding:5px 7px;gap:5px;}
-  .coin-icon{width:24px;height:24px;font-size:11px;}
-  .coin-title{min-width:0;}
-  .coin-name{font-size:13px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .coin-sym{font-size:11px;}
-  .coin-price{font-size:12px;}
-  .coin-change{font-size:12px;padding:2px 5px;}
-  .coin-change.big-up,.coin-change.big-down{font-size:13px;}
+  /* ★ 코인 카드 — 아이콘 제거로 공간 확보 */
+  .coin-header{padding:6px 8px;gap:6px;}
+  .coin-icon{display:none;}
+  .coin-title{min-width:0;flex:1;}
+  .coin-name{font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .coin-sym{font-size:12px;}
+  .coin-price{font-size:13px;}
+  .coin-change{font-size:13px;padding:2px 6px;border-radius:4px;}
+  .coin-change.big-up,.coin-change.big-down{font-size:14px;}
   .coin-hold{text-align:right;}
-  .coin-hold-qty{font-size:14px!important;}
+  .coin-hold-qty{font-size:15px!important;}
   .coin-hold-val{display:none;}
   .coin-price-area{text-align:right;}
 
@@ -388,6 +394,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .result-stats{font-size:13px;line-height:1.8;}
 
   /* 사이드바 내부 */
+  .sb-lang-toggle{display:flex;}
   .sb-section{padding:12px;}
   .sb-title{font-size:13px;margin-bottom:8px;}
   .turn-gauge-text{font-size:14px;}
@@ -428,12 +435,11 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .timer-label{font-size:9px;}
   .coin-area{padding:3px 3px 56px;gap:4px;}
   .coin-header{padding:4px 5px;gap:4px;}
-  .coin-icon{width:20px;height:20px;font-size:9px;}
-  .coin-name{font-size:12px;}
-  .coin-sym{font-size:10px;}
-  .coin-price{font-size:11px;}
-  .coin-change{font-size:11px;padding:1px 4px;}
-  .coin-hold-qty{font-size:13px!important;}
+  .coin-name{font-size:13px;}
+  .coin-sym{font-size:11px;}
+  .coin-price{font-size:12px;}
+  .coin-change{font-size:12px;padding:2px 5px;}
+  .coin-hold-qty{font-size:14px!important;}
   .chart-area{height:32px;padding:1px 3px;}
   .order-slider-labels{height:14px;}
   .order-slider-labels .sell-label,.order-slider-labels .buy-label{font-size:10px;}
@@ -453,13 +459,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 /* ═══ 매우 작은 높이 (667px 이하, SE 등) ═══ */
 @media(max-width:768px) and (max-height:667px){
   .chart-area{height:28px;}
-  .coin-header{padding:3px 5px;gap:3px;}
-  .coin-icon{width:18px;height:18px;font-size:8px;}
-  .coin-name{font-size:11px;}
+  .coin-header{padding:4px 6px;gap:4px;}
+  .coin-name{font-size:12px;}
   .coin-sym{font-size:10px;}
   .coin-price{font-size:11px;}
-  .coin-change{font-size:10px;}
-  .coin-hold-qty{font-size:12px!important;}
+  .coin-change{font-size:11px;}
+  .coin-hold-qty{font-size:13px!important;}
   .order-slider-wrap{height:auto;}
   .order-slider::-webkit-slider-thumb{width:10px;height:18px;}
   .order-slider-labels .sell-label,.order-slider-labels .buy-label{font-size:10px;}
@@ -490,6 +495,14 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 <div class="main-layout">
   <!-- ═══ 왼쪽 사이드바 (고정) ═══ -->
   <aside class="sidebar">
+    <!-- 모바일 전용: 언어 토글 (사이드바 상단) -->
+    <div class="sb-lang-toggle" id="sb-lang-toggle">
+      <span class="sb-lang-label">🌐 Language</span>
+      <div class="lang-toggle" onclick="switchLang()">
+        <span id="sb-lang-ko" class="active">KO</span>
+        <span id="sb-lang-en">EN</span>
+      </div>
+    </div>
     <!-- 턴 게이지 -->
     <div class="sb-section">
       <div class="sb-title">📊 턴 진행</div>
@@ -2057,6 +2070,10 @@ function switchLang(){
   lang=lang==='ko'?'en':'ko';
   document.getElementById('lang-ko').className=lang==='ko'?'active':'';
   document.getElementById('lang-en').className=lang==='en'?'active':'';
+  // 사이드바 언어 토글도 동기화
+  const sbKo=document.getElementById('sb-lang-ko'),sbEn=document.getElementById('sb-lang-en');
+  if(sbKo)sbKo.className=lang==='ko'?'active':'';
+  if(sbEn)sbEn.className=lang==='en'?'active':'';
   document.documentElement.lang=lang;
   updateStaticUI();
   if(gameRunning){

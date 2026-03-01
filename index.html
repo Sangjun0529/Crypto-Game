@@ -123,19 +123,17 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .delist-toast{position:fixed;z-index:280;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.2,0,.2,1);}
 .delist-toast.show{opacity:1;pointer-events:auto;}
 /* 모바일: 하단 작은 박스 */
-.delist-toast{bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#111827,#1a1a2e);border:1px solid rgba(239,68,68,.5);border-radius:12px;padding:12px 20px;text-align:center;max-width:340px;width:88%;box-shadow:0 4px 24px rgba(0,0,0,.6),0 0 20px rgba(239,68,68,.15);}
+.delist-toast{bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#111827,#1a1a2e);border:1px solid rgba(239,68,68,.5);border-radius:10px;padding:8px 16px;text-align:center;max-width:300px;width:auto;box-shadow:0 4px 20px rgba(0,0,0,.6),0 0 16px rgba(239,68,68,.12);}
 .delist-toast.show{transform:translateX(-50%) translateY(0);}
-.delist-toast .dt-icon{font-size:20px;margin-bottom:4px;}
-.delist-toast .dt-msg{font-size:13px;font-weight:700;color:#e5e7eb;line-height:1.4;}
+.delist-toast .dt-msg{font-size:12px;font-weight:700;color:#e5e7eb;line-height:1.5;}
 .delist-toast .dt-coin{color:#f59e0b;font-weight:900;}
-.delist-toast .dt-loss{font-size:12px;color:#ef4444;font-weight:800;margin-top:4px;}
+.delist-toast .dt-loss{font-size:11px;color:#ef4444;font-weight:800;margin-top:2px;}
 /* 데스크탑: 상단 중앙 배너 */
 @media(min-width:769px){
-  .delist-toast{bottom:auto;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);max-width:480px;width:auto;padding:16px 32px;border-radius:14px;border:2px solid rgba(239,68,68,.5);box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 30px rgba(239,68,68,.2);}
+  .delist-toast{bottom:auto;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);max-width:440px;width:auto;padding:12px 28px;border-radius:12px;border:1px solid rgba(239,68,68,.5);box-shadow:0 6px 30px rgba(0,0,0,.5),0 0 20px rgba(239,68,68,.15);}
   .delist-toast.show{transform:translateX(-50%) translateY(0);}
-  .delist-toast .dt-icon{font-size:28px;margin-bottom:6px;}
-  .delist-toast .dt-msg{font-size:15px;}
-  .delist-toast .dt-loss{font-size:14px;}
+  .delist-toast .dt-msg{font-size:14px;}
+  .delist-toast .dt-loss{font-size:13px;}
 }
 
 .scam-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);z-index:300;background:linear-gradient(135deg,#1a0000,#2d0a0a);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 0 60px rgba(239,68,68,.4),0 0 120px rgba(239,68,68,.15);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.2,0,.2,1);}
@@ -1527,21 +1525,28 @@ function showScamPopup(coin,lostAmt){
   el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),4500);
 }
+let _delistQueue=[],_delistTimer=null;
 function showDelistNotice(coin,hadHoldings,lostAmt){
-  const name=coinName(coin);const sym=coin.sym;
+  _delistQueue.push({coin,hadHoldings,lostAmt});
+  if(_delistTimer)clearTimeout(_delistTimer);
+  _delistTimer=setTimeout(_flushDelistQueue,50);
+}
+function _flushDelistQueue(){
+  if(!_delistQueue.length)return;
   const el=document.getElementById('delist-toast');
-  let msg,loss='';
-  if(hadHoldings&&lostAmt>0){
-    msg=lang==='en'
-      ?`<span class="dt-coin">${name}(${sym})</span> has been delisted!`
-      :`<span class="dt-coin">${name}(${sym})</span> 상장폐지!`;
-    loss=lang==='en'?`-$${lostAmt.toFixed(0)} lost`:`-$${lostAmt.toFixed(0)} 손실`;
-  }else{
-    msg=lang==='en'
-      ?`<span class="dt-coin">${name}(${sym})</span> has been delisted`
-      :`<span class="dt-coin">${name}(${sym})</span> 상장폐지`;
-  }
-  el.innerHTML=`<div class="dt-icon">💀</div><div class="dt-msg">${msg}</div>${loss?`<div class="dt-loss">${loss}</div>`:''}`;
+  const items=_delistQueue.splice(0);
+  let totalLoss=0;
+  const lines=items.map(({coin,hadHoldings,lostAmt})=>{
+    const name=coinName(coin),sym=coin.sym;
+    if(hadHoldings&&lostAmt>0)totalLoss+=lostAmt;
+    return `<span class="dt-coin">${name}(${sym})</span>`;
+  });
+  const joined=lines.join(', ');
+  const msg=lang==='en'?`${joined} delisted`:`${joined} 상장폐지`;
+  const loss=totalLoss>0?(lang==='en'?`-$${totalLoss.toFixed(0)} lost`:`-$${totalLoss.toFixed(0)} 손실`):'';
+  el.innerHTML=`<div class="dt-msg">${msg}</div>${loss?`<div class="dt-loss">${loss}</div>`:''}`;
+  el.classList.remove('show');
+  void el.offsetWidth;
   el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),3500);
 }

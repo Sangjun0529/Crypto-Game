@@ -983,8 +983,9 @@ function generateNews(){
     return{headlineKo:hs(raw.ko.headline,koName),detailKo:hs(raw.ko.detail,koName),headlineEn:hs(raw.en.headline,enName),detailEn:hs(raw.en.detail,enName)};
   }
   function pickN(poolKo,poolEn,coin){
-    const l=poolKo.map((_,i)=>i).filter(i=>!usedIdx.has(i));
-    const idx=l.length?l[Math.floor(Math.random()*l.length)]:Math.floor(Math.random()*poolKo.length);
+    const maxLen=Math.min(poolKo.length,poolEn.length);
+    const l=Array.from({length:maxLen},(_,i)=>i).filter(i=>!usedIdx.has(i));
+    const idx=l.length?l[Math.floor(Math.random()*l.length)]:Math.floor(Math.random()*maxLen);
     usedIdx.add(idx);
     const nKo=poolKo[idx],nEn=poolEn[idx];
     const hl=makeHL({ko:nKo,en:nEn},coin);
@@ -1480,51 +1481,53 @@ function unlockTurn(){
 function skipTurn(){
   if(!gameRunning||isProcessingTurn)return;
   lockTurn();
-  orders={};
-  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
-  updateIncome();
-  turn++;
-  if(getTotalAsset()<=0){endGame('bankrupt');return;}
-  if(turn>MAX_TURNS){endGame('finished');return;}
-  simulateNextTurn();
-  for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
-  if(getTotalAsset()<=0){endGame('bankrupt');return;}
-  const pnlSkip=((getTotalAsset()-START_CASH)/START_CASH)*100;
-  if(pnlSkip<=-100){endGame('bankrupt');return;}
-  resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
-  showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
-  setTimeout(unlockTurn,300);
+  try{
+    orders={};
+    const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
+    updateIncome();
+    turn++;
+    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    if(turn>MAX_TURNS){endGame('finished');return;}
+    simulateNextTurn();
+    for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
+    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    const pnlSkip=((getTotalAsset()-START_CASH)/START_CASH)*100;
+    if(pnlSkip<=-100){endGame('bankrupt');return;}
+    resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
+    showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
+  }finally{setTimeout(unlockTurn,300);}
 }
 
 // ═══ 제출 ═══
 function submitOrders(){
   if(!gameRunning||isProcessingTurn)return;
   lockTurn();
-  let bt=0,st=0;
-  for(const[sym,amt]of Object.entries(orders)){
-    if(!amt||delistedSet.has(sym))continue;const p=prices[sym];if(!p||p<=0)continue;
-    if(amt>0){if(amt>cash)continue;cash-=amt;const coinQty=amt/p;if(!holdings[sym])holdings[sym]={qty:0,totalCost:0};
-      holdings[sym].totalCost+=amt;holdings[sym].qty+=coinQty;bt+=amt;
-    }else{const sa=Math.abs(amt),h=holdings[sym];if(!h)continue;const sellQty=sa/p;if(sellQty>h.qty*1.001)continue;
-      const actualQty=Math.min(sellQty,h.qty);const actualAmt=actualQty*p;cash+=actualAmt;h.qty-=actualQty;st+=actualAmt;if(h.qty<0.0001)delete holdings[sym];}
-  }
-  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
-  updateIncome();
-  orders={};turn++;
-  // 제출 직후 -100% 체크
-  if(getTotalAsset()<=0){endGame('bankrupt');return;}
-  // 20턴 종료 체크
-  if(turn>MAX_TURNS){endGame('finished');return;}
-  simulateNextTurn();
-  for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
-  if(getTotalAsset()<=0){endGame('bankrupt');return;}
-  // 수익률 -100% 체크
-  const pnlChk=((getTotalAsset()-START_CASH)/START_CASH)*100;
-  if(pnlChk<=-100){endGame('bankrupt');return;}
-  resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
-  if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
-  else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
-  setTimeout(unlockTurn,300);
+  try{
+    let bt=0,st=0;
+    for(const[sym,amt]of Object.entries(orders)){
+      if(!amt||delistedSet.has(sym))continue;const p=prices[sym];if(!p||p<=0)continue;
+      if(amt>0){if(amt>cash)continue;cash-=amt;const coinQty=amt/p;if(!holdings[sym])holdings[sym]={qty:0,totalCost:0};
+        holdings[sym].totalCost+=amt;holdings[sym].qty+=coinQty;bt+=amt;
+      }else{const sa=Math.abs(amt),h=holdings[sym];if(!h)continue;const sellQty=sa/p;if(sellQty>h.qty*1.001)continue;
+        const actualQty=Math.min(sellQty,h.qty);const actualAmt=actualQty*p;cash+=actualAmt;h.qty-=actualQty;st+=actualAmt;if(h.qty<0.0001)delete holdings[sym];}
+    }
+    const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
+    updateIncome();
+    orders={};turn++;
+    // 제출 직후 -100% 체크
+    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    // 20턴 종료 체크
+    if(turn>MAX_TURNS){endGame('finished');return;}
+    simulateNextTurn();
+    for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
+    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    // 수익률 -100% 체크
+    const pnlChk=((getTotalAsset()-START_CASH)/START_CASH)*100;
+    if(pnlChk<=-100){endGame('bankrupt');return;}
+    resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
+    if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
+    else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
+  }finally{setTimeout(unlockTurn,300);}
 }
 
 // ═══ 자산 ═══

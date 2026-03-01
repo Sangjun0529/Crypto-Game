@@ -159,8 +159,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .result-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:28px;text-align:center;margin-bottom:18px;min-width:440px;max-width:560px;}
 .result-pnl{font-size:52px;font-weight:900;line-height:1.1;margin-bottom:2px;letter-spacing:-1px;}
 .result-asset{font-size:16px;font-weight:600;color:var(--muted);margin-bottom:6px;}
-.result-rank{font-size:56px;font-weight:900;margin:8px 0;line-height:1;}
-.result-rank .pct{font-size:28px;vertical-align:super;}
 .result-comment{font-size:20px;font-weight:700;margin:10px 0 16px;min-height:28px;line-height:1.5;}
 .result-curve{margin:10px auto 14px;display:block;}
 .result-stats{font-size:13px;color:var(--muted);line-height:2.0;}
@@ -301,8 +299,6 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .result-card{min-width:auto;max-width:100%;width:100%;padding:20px 16px;}
   .result-pnl{font-size:38px;}
   .result-asset{font-size:14px;}
-  .result-rank{font-size:42px;}
-  .result-rank .pct{font-size:22px;}
   .result-comment{font-size:16px;}
   .result-curve{width:100%!important;max-width:360px;}
   .result-stats{font-size:12px;line-height:1.8;}
@@ -1304,40 +1300,22 @@ const RANK_COMMENTS={
 function drawNormalCurve(canvas,topPct){
   const ctx=canvas.getContext('2d'),w=canvas.width,h=canvas.height;
   ctx.clearRect(0,0,w,h);
-  const pad={l:35,r:15,t:10,b:42},gw=w-pad.l-pad.r,gh=h-pad.t-pad.b;
+  const pad={l:35,r:15,t:10,b:28},gw=w-pad.l-pad.r,gh=h-pad.t-pad.b;
   function realPDF(x){
     const mu=-0.3,sig1=1.4,sig2=1.0;
     const s=x<mu?sig1:sig2;
     return Math.exp(-((x-mu)*(x-mu))/(2*s*s))/(s*2.507);
   }
   const zMin=-3.8,zMax=3.2,peak=realPDF(-0.3);
-  // 소득분위 구간 (상위%→frac: 0=좌끝하위, 1=우끝상위)
-  // 극빈(80~100%) 빈곤(60~80%) 저소득(40~60%) 중산(20~40%) 고소득(10~20%) 상류(1~10%) 최상류(0~1%)
-  const tiers=[
-    {fromPct:100,toPct:80,color:'#ef444440',label:t('grades')[0]},
-    {fromPct:80,toPct:60,color:'#f8717140',label:t('grades')[1]},
-    {fromPct:60,toPct:40,color:'#fb923c30',label:t('grades')[2]},
-    {fromPct:40,toPct:20,color:'#f59e0b25',label:t('grades')[3]},
-    {fromPct:20,toPct:10,color:'#22c55e30',label:t('grades')[4]},
-    {fromPct:10,toPct:1,color:'#3b82f630',label:t('grades')[5]},
-    {fromPct:1,toPct:0,color:'#a78bfa35',label:t('grades')[6]}
-  ];
   // 배경 그리드
   ctx.strokeStyle='#1e2a3a';ctx.lineWidth=0.5;
   for(let i=0;i<=4;i++){const y=pad.t+gh*i/4;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(pad.l+gw,y);ctx.stroke();}
-  // 소득분위 색상 영역 채우기
-  tiers.forEach(tier=>{
-    const x0=pad.l+(1-tier.fromPct/100)*gw;
-    const x1=pad.l+(1-tier.toPct/100)*gw;
-    ctx.fillStyle=tier.color;
-    ctx.fillRect(x0,pad.t,x1-x0,gh);
-  });
-  // 곡선 아래 채우기
+  // 곡선 아래 채우기 (전체: 어두운 색)
   ctx.beginPath();
   for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-realPDF(z)/peak*gh*.92;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
   ctx.lineTo(pad.l+gw,pad.t+gh);ctx.lineTo(pad.l,pad.t+gh);ctx.closePath();
-  ctx.fillStyle='rgba(107,114,128,0.12)';ctx.fill();
+  ctx.fillStyle='rgba(107,114,128,0.15)';ctx.fill();
   // 내 위치
   const myFrac=1-topPct/100;
   const myZ=zMin+(zMax-zMin)*myFrac;
@@ -1354,31 +1332,14 @@ function drawNormalCurve(canvas,topPct){
   for(let i=0;i<=200;i++){const z=zMin+(zMax-zMin)*i/200,x=pad.l+(i/200)*gw,y=pad.t+gh-realPDF(z)/peak*gh*.92;
     i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
   ctx.stroke();
-  // 소득분위 경계선 + 하단 라벨
-  const tierBounds=[80,60,40,20,10,1];
-  ctx.setLineDash([2,4]);ctx.lineWidth=0.7;
-  tierBounds.forEach(pct=>{
-    const fx=1-pct/100,bx=pad.l+fx*gw;
-    ctx.beginPath();ctx.strokeStyle='#374151';ctx.moveTo(bx,pad.t+gh);ctx.lineTo(bx,pad.t+gh*0.7);ctx.stroke();
-  });
-  ctx.setLineDash([]);
-  // 소득분위 라벨 (하단)
-  const fs=w<350?7:8;
-  ctx.font=`bold ${fs}px sans-serif`;ctx.textAlign='center';
-  tiers.forEach(tier=>{
-    const cx=pad.l+((1-tier.fromPct/100)+(1-tier.toPct/100))/2*gw;
-    const tierColor=tier.color.slice(0,-2);
-    ctx.fillStyle=tierColor;
-    ctx.fillText(tier.label,cx,pad.t+gh+12);
-  });
-  // 0% 수익률 기준선
+  // 0% 수익률 기준선 (손익분기)
   const zeroFrac=(-zMin)/(zMax-zMin);
   if(zeroFrac>0&&zeroFrac<1){
     const zx=pad.l+zeroFrac*gw;
-    ctx.beginPath();ctx.strokeStyle='#4b5563';ctx.lineWidth=1;ctx.setLineDash([2,3]);
+    ctx.beginPath();ctx.strokeStyle='#374151';ctx.lineWidth=1;ctx.setLineDash([2,3]);
     ctx.moveTo(zx,pad.t);ctx.lineTo(zx,pad.t+gh);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='#6b7280';ctx.font='9px sans-serif';ctx.textAlign='center';
-    ctx.fillText('0%',zx,pad.t+gh+24);
+    ctx.fillStyle='#4b5563';ctx.font='9px sans-serif';ctx.textAlign='center';
+    ctx.fillText('0%',zx,pad.t+gh+10);
   }
   // 내 위치 수직선
   const myX=pad.l+myFrac*gw,myY=pad.t+gh-realPDF(myZ)/peak*gh*.92;
@@ -1391,6 +1352,13 @@ function drawNormalCurve(canvas,topPct){
   // "나" 라벨
   ctx.fillStyle='#fff';ctx.font='bold 11px sans-serif';ctx.textAlign='center';
   ctx.fillText(t('curveMe'),myX,myY-12);
+  // 내 위치 x축 아래에 상위 n% 표시
+  ctx.fillStyle=myCol;ctx.font='bold 16px sans-serif';ctx.textAlign='center';
+  ctx.fillText(topPct+'%',myX,pad.t+gh+22);
+  // 하단 축 라벨
+  ctx.fillStyle='#4b5563';ctx.font='10px sans-serif';ctx.textAlign='center';
+  const labels=[t('curveLow'),'','',t('curveMid'),'','',t('curveHigh')];
+  for(let i=0;i<7;i++){ctx.fillText(labels[i],pad.l+gw*i/6,h-4);}
   // 좌측 Y축 라벨
   ctx.fillStyle='#374151';ctx.font='9px sans-serif';ctx.textAlign='right';
   ctx.fillText(t('curveMany'),pad.l-5,pad.t+12);ctx.fillText(t('curveFew'),pad.l-5,pad.t+gh);
@@ -1422,9 +1390,8 @@ function endGame(reason){
     else{incColor='#a78bfa';incLabel=gr[6];}
     rc.innerHTML=`<div class="result-pnl" style="color:${pnlColor}">${pnlStr}</div>
       <div class="result-asset">${t('finalAsset')}: $${tot.toFixed(0)}</div>
-      <div class="result-rank" style="color:${rankColor}">${t('topPct')} ${topPct}<span class="pct">%</span></div>
       <div class="result-comment" style="color:${rankColor}">${comment}</div>
-      <canvas class="result-curve" id="result-curve" width="420" height="180"></canvas>
+      <canvas class="result-curve" id="result-curve" width="420" height="160"></canvas>
       <div class="result-stats">
         ${t('cashLabel')}: $${cash.toFixed(0)} / ${t('coinLabel')}: $${getHV().toFixed(0)} / ${t('totalTurn')} ${Math.min(turn,MAX_TURNS)}${t('turnUnit')}<br>
         ${t('inflAccum')}: -$${inflTotal.toFixed(0)} / ${lang==='en'?'Grade':'소득분위'}: <span style="color:${incColor};font-weight:700">${incLabel}</span>
@@ -1435,7 +1402,7 @@ function endGame(reason){
       const cv=document.getElementById('result-curve');
       if(window.innerWidth<=768){
         const w=Math.min(420,rc.offsetWidth-32);
-        cv.width=w;cv.height=Math.round(w*180/420);
+        cv.width=w;cv.height=Math.round(w*160/420);
       }
       drawNormalCurve(cv,topPct);
     },80);
@@ -1546,7 +1513,7 @@ window.addEventListener('resize',()=>{
   const cv=document.getElementById('result-curve');
   if(cv&&cv.parentElement&&cv.style.display!=='none'){
     const w=Math.min(420,cv.parentElement.offsetWidth-32);
-    cv.width=w;cv.height=Math.round(w*180/420);
+    cv.width=w;cv.height=Math.round(w*160/420);
   }
 });
 

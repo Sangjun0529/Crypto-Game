@@ -151,6 +151,18 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .cdn-dt{font-size:10px;color:#4b5563;margin-top:2px;line-height:1.3;}
 .cdn-empty{font-size:12px;color:var(--muted);text-align:center;padding:20px 0;}
 
+/* 가이드 버튼 */
+.guide-btn{display:inline-block;margin-top:12px;padding:10px 28px;font-size:14px;font-weight:700;color:var(--accent);background:transparent;border:1px solid rgba(245,158,11,.35);border-radius:10px;text-decoration:none;transition:all .2s;letter-spacing:.5px;}
+.guide-btn:hover{background:rgba(245,158,11,.1);border-color:var(--accent);}
+
+/* 모달 내 주문 패널 */
+.cd-trade{padding:12px 16px;border-top:1px solid var(--border);}
+.cd-trade-title{font-size:11px;font-weight:800;color:var(--accent);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+.cd-trade-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center;}
+.cd-trade-row .order-btn{min-width:44px;max-width:68px;flex:1;padding:7px 2px;font-size:12px;}
+.cd-trade-row .order-divider{width:2px;height:28px;background:var(--border);margin:0 2px;border-radius:1px;}
+.cd-trade-pending{text-align:center;margin-top:8px;font-size:13px;font-weight:700;min-height:20px;}
+
 /* 주문 버튼 — 2행 컴팩트 */
 .order-row{display:flex;align-items:center;padding:6px 8px;gap:3px;border-top:1px solid var(--border);background:#0d1117;flex-wrap:wrap;justify-content:center;}
 .order-row::-webkit-scrollbar{height:0;}
@@ -600,6 +612,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   </div>
   <div class="result-card" id="result-card" style="display:none;"></div>
   <button class="start-btn" id="start-btn">게임 시작</button>
+  <a href="guide.html" class="guide-btn" id="guide-btn">📖 게임 가이드</a>
   <div id="overlay-disclaimer" style="margin-top:16px;font-size:10px;color:#6b7280;text-align:center;max-width:480px;line-height:1.6;">
     ⚠️ 본 서비스는 교육·오락 목적의 모의투자 시뮬레이터이며, 실제 금융 거래와 무관합니다.<br>
     <a href="terms.html" style="color:#f59e0b;text-decoration:none;">이용약관</a> · <a href="privacy.html" style="color:#f59e0b;text-decoration:none;">개인정보처리방침</a> · <a href="guide.html" style="color:#f59e0b;text-decoration:none;">가이드</a>
@@ -647,7 +660,7 @@ const T={
     pendingDefault:'주문을 설정하고 제출하세요.',submit:'📊 주문 제출 → 다음 턴',reset:'초기화',
     orderReset:'주문 초기화',noHold:'보유분 없음',noTrade:'거래불가',overHold:'초과',noCash:'현금 부족',cashShort:'현금($%s) 부족',overSell:'보유분($%s) 초과',
     buy:'매수',sell:'매도',pending:'건',
-    gameTitle:'CRYPTO TRADER',gameDesc:`모의투자 시뮬레이터<br><br>• 👑 <b>대장주 BTCX</b> + 7개 코인으로 <b>20턴</b> 투자<br>• 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>• 📈 신규 코인 상장 &amp; 하위 종목 상장폐지!<br>• 🚨 <b>사기 코인 주의!</b> 가짜 호재 후 갑자기 폐지<br>• 💀 수익률 -100%면 즉시 파산!<br>• 1턴 = 1분, 시간 내 주문 완료하세요<br>• 가만히 있으면 인플레이션으로 현금 가치 ↓<br><br><span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>`,
+    gameTitle:'CRYPTO TRADER',gameDesc:`<span style="font-size:1.1em;color:var(--text);">당신의 투자 본능을 시험할 시간</span><br><br>💰 <b>$1,000</b>으로 시작해서 얼마나 불릴 수 있을까?<br>📈 뉴스를 읽고, 흐름을 타고, <b>최적의 타이밍</b>을 잡아라<br>🔥 상위 <b>1%</b>만이 최상류층에 도달합니다<br>🎯 당신은 과연 몇 등급까지 올라갈 수 있을까?`,guideBtn:'📖 게임 가이드',
     startBtn:'게임 시작',restartBtn:'다시 시작',
     bankrupt:'💸 파산!',finished:'🏁 게임 종료!',endTitle:'게임 종료',bankruptLabel:'파산',
     topPct:'상위',finalAsset:'최종 자산',cashLabel:'현금',coinLabel:'코인',totalTurn:'총',turnUnit:'턴',inflAccum:'인플레이션 누적',
@@ -670,7 +683,7 @@ const T={
     pendingDefault:'Set your orders and submit.',submit:'📊 Submit → Next Turn',reset:'Reset',
     orderReset:'Orders reset',noHold:'No holdings',noTrade:'Not tradable',overHold:'exceeds',noCash:'No cash',cashShort:'Cash($%s) short',overSell:'Holdings($%s) exceeded',
     buy:'Buy',sell:'Sell',pending:'orders',
-    gameTitle:'CRYPTO TRADER',gameDesc:`Trading Simulator<br><br>• 👑 <b>BTCX leader</b> + 7 coins over <b>20 turns</b><br>• 📰 <b>3 news per turn</b> affect prices<br>• 📈 New coins list &amp; bottom coins delist!<br>• 🚨 <b>Watch for SCAM coins!</b> Fake hype then rug pull<br>• 💀 -100% P&L = instant bankruptcy!<br>• 1 turn = 1 min, complete before time's up<br>• Idle cash loses value to inflation<br><br><span style="color:var(--buy)">Red = Buy</span> &nbsp;|&nbsp; <span style="color:var(--sell)">Blue = Sell</span>`,
+    gameTitle:'CRYPTO TRADER',gameDesc:`<span style="font-size:1.1em;color:var(--text);">Time to test your trading instincts</span><br><br>💰 Start with <b>$1,000</b> — how far can you grow it?<br>📈 Read the news, ride the wave, and find the <b>perfect timing</b><br>🔥 Only the top <b>1%</b> reach Elite status<br>🎯 How high can YOU climb?`,guideBtn:'📖 Game Guide',
     startBtn:'Start Game',restartBtn:'Restart',
     bankrupt:'💸 Bankrupt!',finished:'🏁 Game Over!',endTitle:'Game Over',bankruptLabel:'Bankrupt',
     topPct:'Top',finalAsset:'Final',cashLabel:'Cash',coinLabel:'Coins',totalTurn:'Total',turnUnit:'turns',inflAccum:'Inflation',
@@ -1430,6 +1443,26 @@ function openCoinDetail(sym){
       </div>`;
     });
   }
+  const isDead=delistedSet.has(sym);
+  const curOrd=orders[sym]||0;
+  const pendTxt=curOrd>0?`<span style="color:var(--buy)">${t('buy')} $${curOrd}</span>`:curOrd<0?`<span style="color:var(--sell)">${t('sell')} $${Math.abs(curOrd)}</span>`:'';
+  const tradeHtml=gameRunning&&!isDead?`<div class="cd-trade">
+    <div class="cd-trade-title">💹 ${lang==='en'?'Trade':'주문하기'}</div>
+    <div class="cd-trade-row">
+      <button class="order-btn all-sell sell" onclick="cdOrder('${sym}','sellAll')">${t('sellAll')}</button>
+      <button class="order-btn sell" onclick="cdOrder('${sym}',-200)">$200</button>
+      <button class="order-btn sell" onclick="cdOrder('${sym}',-100)">$100</button>
+      <button class="order-btn sell" onclick="cdOrder('${sym}',-50)">$50</button>
+      <button class="order-btn sell" onclick="cdOrder('${sym}',-10)">$10</button>
+      <div class="cd-trade-row order-divider"></div>
+      <button class="order-btn buy" onclick="cdOrder('${sym}',10)">$10</button>
+      <button class="order-btn buy" onclick="cdOrder('${sym}',50)">$50</button>
+      <button class="order-btn buy" onclick="cdOrder('${sym}',100)">$100</button>
+      <button class="order-btn buy" onclick="cdOrder('${sym}',200)">$200</button>
+      <button class="order-btn all-buy buy" onclick="cdOrder('${sym}','buyAll')">${t('buyAll')}</button>
+    </div>
+    <div class="cd-trade-pending" id="cd-pending-${sym}">${pendTxt}</div>
+  </div>`:'';
   inner.innerHTML=`<div class="cd-header">
     <div class="cd-icon" style="background:${c.color}">${sym[0]}</div>
     <div class="cd-title"><div class="cd-name">${coinName(c)}</div><div class="cd-sym">${sym}</div></div>
@@ -1443,6 +1476,7 @@ function openCoinDetail(sym){
     <div class="cd-stat"><div class="cd-label">${t('hold')}</div><div class="cd-val" style="color:var(--accent)">$${hv.toFixed(0)}</div></div>
   </div>
   <div class="cd-chart"><canvas id="detail-chart-${sym}"></canvas></div>
+  ${tradeHtml}
   <div class="cd-news">
     <div class="cd-news-title">📰 ${lang==='en'?`${sym} News`:`${sym} 관련 뉴스`}</div>
     ${newsHtml}
@@ -2075,6 +2109,21 @@ function cancelCoinOrder(sym){
   const label=name?coinName(name):sym;
   showSysNews(lang==='en'?`${label}(${sym}) order cancelled`:`${label}(${sym}) 주문 취소`);
 }
+function cdOrder(sym,val){
+  if(!gameRunning)return;
+  if(delistedSet.has(sym)){showSysNews(`💀 ${sym} ${t('noTrade')}`);return;}
+  if(val==='buyAll'){buyAll(sym);
+  }else if(val==='sellAll'){sellAll(sym);
+  }else{setOrder(sym,val);}
+  updateCdPending(sym);
+}
+function updateCdPending(sym){
+  const el=document.getElementById(`cd-pending-${sym}`);if(!el)return;
+  const v=orders[sym]||0;
+  if(v>0) el.innerHTML=`<span style="color:var(--buy)">${t('buy')} $${v}</span>`;
+  else if(v<0) el.innerHTML=`<span style="color:var(--sell)">${t('sell')} $${Math.abs(v)}</span>`;
+  else el.innerHTML='';
+}
 
 // 결과 캔버스 모바일 리사이즈
 window.addEventListener('resize',()=>{
@@ -2121,6 +2170,7 @@ function updateStaticUI(){
   ov.querySelector('.desc').innerHTML=t('gameDesc');
   const startBtn=document.getElementById('start-btn');
   if(startBtn.textContent!==t('restartBtn'))startBtn.textContent=t('startBtn');
+  const guideBtn=document.getElementById('guide-btn');if(guideBtn)guideBtn.textContent=t('guideBtn');
   // 하단 바
   document.querySelector('.submit-btn').innerHTML=t('submit');
   document.querySelector('.reset-btn').textContent=t('reset');

@@ -183,6 +183,19 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .ad-banner-top{display:none;}
 .ad-banner-infeed{display:none;}
 
+/* ─── 모바일 뉴스 배너 (가로형 컴팩트) ─── */
+.news-banner-mobile{display:none;}
+.news-banner-mobile .news-banner-inner{display:flex;align-items:center;gap:6px;padding:6px 8px;background:#0d1117;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.news-banner-mobile .nb-tag{font-size:8px;font-weight:800;padding:2px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;text-transform:uppercase;}
+.news-banner-mobile .nb-tag.bullish{background:rgba(34,197,94,.15);color:#22c55e;}
+.news-banner-mobile .nb-tag.bearish{background:rgba(239,68,68,.15);color:#ef4444;}
+.news-banner-mobile .nb-tag.neutral{background:rgba(245,158,11,.15);color:#f59e0b;}
+.news-banner-mobile .nb-headline{font-size:11px;font-weight:600;color:#9ca3af;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.news-banner-mobile .nb-headline .news-coin-name{color:#fff;font-weight:900;}
+.news-banner-mobile .nb-impact{font-size:10px;font-weight:900;flex-shrink:0;}
+.news-banner-mobile .nb-impact.positive{color:var(--profit);}
+.news-banner-mobile .nb-impact.negative{color:var(--loss);}
+
 /* ─── 푸터 네비게이션 ─── */
 .game-footer{background:var(--card);border-top:1px solid var(--border);padding:10px 20px;text-align:center;font-size:11px;color:var(--muted);line-height:1.8;}
 .game-footer a{color:var(--accent);text-decoration:none;margin:0 8px;}
@@ -281,6 +294,14 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .order-toggle{display:none !important;}
   .order-row{display:none !important;}
   .order-slider-wrap{display:block;}
+
+  /* ★ 모바일: 뉴스 배너 표시, 광고 배너 숨김 */
+  .news-banner-mobile{display:block;}
+  .news-banner-mobile.nb-top{margin:2px 4px;}
+  .news-banner-mobile.nb-infeed{grid-column:1/-1;margin:0;}
+  .news-banner-mobile.nb-bottom{margin:0 4px 4px;}
+  .ad-banner-top{display:none !important;}
+  .ad-banner-infeed{display:none !important;}
 
   /* 하단바 */
   .bottom-bar{padding:6px 8px;gap:6px;}
@@ -424,16 +445,14 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
     </div>
   </aside>
 
-  <!-- 모바일 상단 배너 광고 -->
-  <div class="ad-banner ad-banner-top">
-    <div class="ad-label">AD</div>
-    <div class="ad-slot-inline">
-      <ins class="adsbygoogle" style="display:block;width:100%;min-height:50px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
-    </div>
-  </div>
+  <!-- 모바일 상단 뉴스 배너 -->
+  <div class="news-banner-mobile nb-top" id="news-banner-top"></div>
 
   <!-- ═══ 오른쪽 코인 영역 ═══ -->
   <div class="coin-area" id="coin-container"></div>
+
+  <!-- 모바일 하단 뉴스 배너 -->
+  <div class="news-banner-mobile nb-bottom" id="news-banner-bottom"></div>
 </div>
 
 <div class="bottom-bar">
@@ -834,6 +853,7 @@ function renderNewsPanel(){
   currentNews.forEach((n,i)=>{
     const d=document.createElement('div');
     d.className='news-card';
+    if(n.isMain)d.classList.add('main-news');
     const tc=n.sentiment==='bullish'?'bullish':n.sentiment==='bearish'?'bearish':'neutral';
     const tt=t(n.sentiment);
     const it=n.crowd>0?`+${n.crowd.toFixed(0)}%`:n.crowd<0?`${n.crowd.toFixed(0)}%`:'±0%';
@@ -842,6 +862,27 @@ function renderNewsPanel(){
     const dt=lang==='en'?(n.detailEn||n.detail):n.detailKo||n.detail;
     d.innerHTML=`<span class="news-tag ${tc}">${tt}</span><div class="news-impact ${ic}">${it}</div><div class="news-headline">${hl}</div><div class="news-detail">${dt}</div><span class="news-coin-badge">${n.targetSym==='MARKET'?t('market'):n.targetSym}</span>`;
     ct.appendChild(d);
+  });
+  // 모바일 뉴스 배너도 업데이트
+  if(window.innerWidth<=768)renderMobileNewsBanners();
+}
+
+function renderMobileNewsBanners(){
+  const slots=['news-banner-top','news-banner-mid','news-banner-bottom'];
+  slots.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const n=currentNews[i];
+    if(!n){el.innerHTML='';return;}
+    const tc=n.sentiment;
+    const hl=lang==='en'?(n.headlineEn||n.headline):n.headlineKo||n.headline;
+    const it=n.crowd>0?`+${n.crowd.toFixed(0)}%`:n.crowd<0?`${n.crowd.toFixed(0)}%`:'±0%';
+    const ic=n.crowd>0?'positive':n.crowd<0?'negative':'';
+    el.innerHTML=`<div class="news-banner-inner">
+      <span class="nb-tag ${tc}">${t(tc)}</span>
+      <span class="nb-headline">${hl}</span>
+      <span class="nb-impact ${ic}">${it}</span>
+    </div>`;
   });
 }
 
@@ -949,30 +990,28 @@ function buildCoinCards(){
     <button class="order-toggle" id="toggle-${sym}" onclick="toggleOrder('${sym}')">${orderToggleText}</button>
     <div class="order-row${isMobile?' collapsed':''}" id="order-${sym}">
       <button class="order-btn all-sell sell" onclick="sellAll('${sym}',this)">${t('sellAll')}</button>
-      <input class="order-custom" type="number" min="5" step="5" placeholder="${t('custom')}" id="cs-${sym}">
+      <button class="order-btn sell" onclick="setOrder('${sym}',-200,this)">$200</button>
+      <button class="order-btn sell" onclick="setOrder('${sym}',-100,this)">$100</button>
       <button class="order-btn sell" onclick="setOrder('${sym}',-50,this)">$50</button>
       <button class="order-btn sell" onclick="setOrder('${sym}',-30,this)">$30</button>
       <button class="order-btn sell" onclick="setOrder('${sym}',-10,this)">$10</button>
-      <button class="order-btn sell" onclick="setOrder('${sym}',-5,this)">$5</button>
       <div class="order-divider"></div>
-      <button class="order-btn buy" onclick="setOrder('${sym}',5,this)">$5</button>
       <button class="order-btn buy" onclick="setOrder('${sym}',10,this)">$10</button>
       <button class="order-btn buy" onclick="setOrder('${sym}',30,this)">$30</button>
       <button class="order-btn buy" onclick="setOrder('${sym}',50,this)">$50</button>
-      <input class="order-custom" type="number" min="5" step="5" placeholder="${t('custom')}" id="cb-${sym}">
+      <button class="order-btn buy" onclick="setOrder('${sym}',100,this)">$100</button>
+      <button class="order-btn buy" onclick="setOrder('${sym}',200,this)">$200</button>
       <button class="order-btn all-buy buy" onclick="buyAll('${sym}',this)">${t('buyAll')}</button>
       <div class="order-pending" id="pending-${sym}"></div>
     </div>`;
     ct.appendChild(sec);
-    // 4번째 카드 뒤에 인피드 광고 삽입 (모바일)
+    // 4번째 카드 뒤에 인피드 뉴스 배너 삽입 (모바일)
     if(isMobile&&idx===3){
-      const adDiv=document.createElement('div');adDiv.className='ad-banner ad-banner-infeed';
-      adDiv.innerHTML='<div class="ad-label">AD</div><div class="ad-slot-inline"><ins class="adsbygoogle" style="display:block;width:100%;min-height:50px;" data-ad-client="ca-pub-9216314386092719" data-ad-slot="auto" data-ad-format="fluid" data-full-width-responsive="true"></ins></div>';
-      ct.appendChild(adDiv);
-      try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+      const nbDiv=document.createElement('div');
+      nbDiv.className='news-banner-mobile nb-infeed';
+      nbDiv.id='news-banner-mid';
+      ct.appendChild(nbDiv);
     }
-    document.getElementById(`cs-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,-v,null);this.value='';});
-    document.getElementById(`cb-${sym}`).addEventListener('change',function(){const v=parseInt(this.value);if(v>0)setOrder(sym,v,null);this.value='';});
   }
   drawAllCharts();
 }

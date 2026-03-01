@@ -187,6 +187,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 
 /* ─── 오버레이 ─── */
 #overlay{position:fixed;inset:0;background:rgba(10,14,23,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:200;transition:opacity .4s;}
+.overlay-lang-toggle{margin-bottom:16px;}
 #overlay.hidden{opacity:0;pointer-events:none;}
 #overlay h1{font-size:40px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
 #overlay .desc{color:var(--muted);font-size:15px;text-align:center;max-width:520px;line-height:1.9;margin-bottom:22px;}
@@ -579,6 +580,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 </div>
 
 <div id="overlay">
+  <div class="overlay-lang-toggle">
+    <div class="lang-toggle" onclick="switchLang()">
+      <span id="ov-lang-ko" class="active">KO</span>
+      <span id="ov-lang-en">EN</span>
+    </div>
+  </div>
   <h1>CRYPTO TRADER</h1>
   <div class="desc">
     모의투자 시뮬레이터<br><br>
@@ -2083,10 +2090,9 @@ function switchLang(){
   lang=lang==='ko'?'en':'ko';
   document.getElementById('lang-ko').className=lang==='ko'?'active':'';
   document.getElementById('lang-en').className=lang==='en'?'active':'';
-  // 사이드바 언어 토글도 동기화
-  const sbKo=document.getElementById('sb-lang-ko'),sbEn=document.getElementById('sb-lang-en');
-  if(sbKo)sbKo.className=lang==='ko'?'active':'';
-  if(sbEn)sbEn.className=lang==='en'?'active':'';
+  // 사이드바 + 오버레이 언어 토글 동기화
+  ['sb-lang-ko','ov-lang-ko'].forEach(id=>{const e=document.getElementById(id);if(e)e.className=lang==='ko'?'active':'';});
+  ['sb-lang-en','ov-lang-en'].forEach(id=>{const e=document.getElementById(id);if(e)e.className=lang==='en'?'active':'';});
   document.documentElement.lang=lang;
   updateStaticUI();
   if(gameRunning){

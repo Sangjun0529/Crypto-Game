@@ -119,6 +119,25 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 /* ─── 코인 상세 모달 ─── */
 .coin-detail-modal{position:fixed;inset:0;background:rgba(10,14,23,.95);z-index:250;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;transition:opacity .3s;}
 .coin-detail-modal.hidden{opacity:0;pointer-events:none;}
+/* 상장폐지 알림 토스트 */
+.delist-toast{position:fixed;z-index:280;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.2,0,.2,1);}
+.delist-toast.show{opacity:1;pointer-events:auto;}
+/* 모바일: 하단 작은 박스 */
+.delist-toast{bottom:70px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,#111827,#1a1a2e);border:1px solid rgba(239,68,68,.5);border-radius:12px;padding:12px 20px;text-align:center;max-width:340px;width:88%;box-shadow:0 4px 24px rgba(0,0,0,.6),0 0 20px rgba(239,68,68,.15);}
+.delist-toast.show{transform:translateX(-50%) translateY(0);}
+.delist-toast .dt-icon{font-size:20px;margin-bottom:4px;}
+.delist-toast .dt-msg{font-size:13px;font-weight:700;color:#e5e7eb;line-height:1.4;}
+.delist-toast .dt-coin{color:#f59e0b;font-weight:900;}
+.delist-toast .dt-loss{font-size:12px;color:#ef4444;font-weight:800;margin-top:4px;}
+/* 데스크탑: 상단 중앙 배너 */
+@media(min-width:769px){
+  .delist-toast{bottom:auto;top:80px;left:50%;transform:translateX(-50%) translateY(-20px);max-width:480px;width:auto;padding:16px 32px;border-radius:14px;border:2px solid rgba(239,68,68,.5);box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 30px rgba(239,68,68,.2);}
+  .delist-toast.show{transform:translateX(-50%) translateY(0);}
+  .delist-toast .dt-icon{font-size:28px;margin-bottom:6px;}
+  .delist-toast .dt-msg{font-size:15px;}
+  .delist-toast .dt-loss{font-size:14px;}
+}
+
 .scam-popup{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.7);z-index:300;background:linear-gradient(135deg,#1a0000,#2d0a0a);border:2px solid #ef4444;border-radius:16px;padding:32px 40px;text-align:center;max-width:420px;width:90%;box-shadow:0 0 60px rgba(239,68,68,.4),0 0 120px rgba(239,68,68,.15);opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.2,0,.2,1);}
 .scam-popup.show{opacity:1;transform:translate(-50%,-50%) scale(1);pointer-events:auto;}
 .scam-popup .sp-icon{font-size:48px;margin-bottom:12px;}
@@ -627,6 +646,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   <div class="coin-detail-inner" id="coin-detail-inner"></div>
 </div>
 <div class="scam-popup" id="scam-popup"></div>
+<div class="delist-toast" id="delist-toast"></div>
 
 <!-- 푸터 네비게이션 -->
 <div class="game-footer" id="game-footer">
@@ -1252,9 +1272,12 @@ function simulateNextTurn(){
     // 신규 코인은 확률 2배
     if(newCoinSet.has(c.sym))chance*=2;
     if(Math.random()<chance){
+      const hadH=holdings[c.sym]&&holdings[c.sym].qty>0;
+      const lostA=hadH?(holdings[c.sym].qty*(prices[c.sym]||0)):0;
       delistedSet.add(c.sym);prices[c.sym]=0;changes[c.sym]=-100;
       showSysNews(t('delisted').replace('%s',c.sym));
-      if(holdings[c.sym]&&holdings[c.sym].qty>0)holdings[c.sym].qty=0;
+      if(hadH)holdings[c.sym].qty=0;
+      showDelistNotice(c,hadH,lostA);
     }
   }
 
@@ -1503,6 +1526,24 @@ function showScamPopup(coin,lostAmt){
   el.innerHTML=`<div class="sp-icon">🚨</div><div class="sp-title">${title}</div><div class="sp-msg">${msg}</div><div class="sp-loss">${lossText}</div>`;
   el.classList.add('show');
   setTimeout(()=>el.classList.remove('show'),4500);
+}
+function showDelistNotice(coin,hadHoldings,lostAmt){
+  const name=coinName(coin);const sym=coin.sym;
+  const el=document.getElementById('delist-toast');
+  let msg,loss='';
+  if(hadHoldings&&lostAmt>0){
+    msg=lang==='en'
+      ?`<span class="dt-coin">${name}(${sym})</span> has been delisted!`
+      :`<span class="dt-coin">${name}(${sym})</span> 상장폐지!`;
+    loss=lang==='en'?`-$${lostAmt.toFixed(0)} lost`:`-$${lostAmt.toFixed(0)} 손실`;
+  }else{
+    msg=lang==='en'
+      ?`<span class="dt-coin">${name}(${sym})</span> has been delisted`
+      :`<span class="dt-coin">${name}(${sym})</span> 상장폐지`;
+  }
+  el.innerHTML=`<div class="dt-icon">💀</div><div class="dt-msg">${msg}</div>${loss?`<div class="dt-loss">${loss}</div>`:''}`;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3500);
 }
 function drawDetailChart(sym,color){
   const cv=document.getElementById(`detail-chart-${sym}`);if(!cv)return;

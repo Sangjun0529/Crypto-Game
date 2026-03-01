@@ -1105,7 +1105,7 @@ function simulateNextTurn(){
     // ═══ 뉴스 불신 알고리즘 ═══
     const reliability=0.3+Math.random()*0.8;
     crowd*=reliability;
-    if(c.isScam&&scamTimers[c.sym]>1){crowd=Math.abs(crowd)+15+Math.random()*20;}
+    if(c.isScam&&scamTimers[c.sym]>1){crowd=Math.abs(crowd)+25+Math.random()*35;}
     const fakeChance=turn<=5?0.35:turn<=12?0.25:0.15;
     if(!c.isScam&&Math.abs(crowd)>3&&Math.random()<fakeChance){
       crowd=-crowd*(0.5+Math.random()*0.7);
@@ -1117,14 +1117,28 @@ function simulateNextTurn(){
     if(Math.abs(prevChange)>8){base+=-prevChange*(0.2+Math.random()*0.3);}
     const chaos=(Math.random()-0.5)*8*volMult;
     let total=base+crowd+chaos;
-    // 신규 코인: 지수 확률분포 변동성 (높은 변동폭 = 낮은 확률, 최대 300%)
+    // ═══ 신규 코인: 지수 확률분포 변동성 (최대 300%) ═══
     if(newCoinSet.has(c.sym)){
-      // -ln(U) 지수분포: 평균 ~35%, 꼬리가 긴 분포로 극단적 상승 가능
       const u=Math.random();
-      const expSpike=-Math.log(1-u*0.9999)*35; // 평균 35, 극단값 ~200-300
-      if(Math.random()<0.55) total+=expSpike; // 55% 확률로 상승 스파이크
-      else total-=expSpike*0.4; // 45% 확률로 하락 (상승보다 약하게)
-      total=Math.max(-60,Math.min(300,total)); // 신규: -60% ~ +300%
+      const expSpike=-Math.log(1-u*0.9999)*35;
+      if(Math.random()<0.55) total+=expSpike;
+      else total-=expSpike*0.4;
+      total=Math.max(-60,Math.min(300,total));
+    // ═══ 사기 코인: 극적 펌핑 후 러그풀 ═══
+    }else if(c.isScam){
+      const timer=scamTimers[c.sym]||0;
+      if(timer>1){
+        // 상폐 전: 미친 듯이 펌핑 — 지수분포로 폭등 (최대 500%)
+        const u=Math.random();
+        const pumpSpike=-Math.log(1-u*0.9999)*50; // 더 강한 평균 50%
+        total+=pumpSpike;
+        // 턴이 적게 남을수록 더 과격하게 (공포감 조성용 급등)
+        if(timer===2) total+=20+Math.random()*40;
+        total=Math.max(-10,Math.min(500,total)); // 하락 거의 없이 폭등만
+      }else{
+        // 상폐 직전 턴: 마지막 속임수 소폭 상승
+        total=5+Math.random()*15;
+      }
     }else{
       total=Math.max(-30,Math.min(35,total)); // 기존: -30% ~ +35%
     }

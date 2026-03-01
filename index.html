@@ -1465,9 +1465,21 @@ function updatePS(){
 }
 function resetOrders(){orders={};for(const c of COINS)updateOD(c.sym);updatePS();showSysNews(t('orderReset'));}
 
+// ═══ 다중 클릭 방지 ═══
+let isProcessingTurn=false;
+function lockTurn(){
+  isProcessingTurn=true;
+  const btn=document.querySelector('.submit-btn');if(btn)btn.disabled=true;
+}
+function unlockTurn(){
+  isProcessingTurn=false;
+  const btn=document.querySelector('.submit-btn');if(btn)btn.disabled=false;
+}
+
 // ═══ 시간초과: 주문 초기화 후 턴 넘김 ═══
 function skipTurn(){
-  if(!gameRunning)return;
+  if(!gameRunning||isProcessingTurn)return;
+  lockTurn();
   orders={};
   const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
   updateIncome();
@@ -1481,11 +1493,14 @@ function skipTurn(){
   if(pnlSkip<=-100){endGame('bankrupt');return;}
   resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
   showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
+  setTimeout(unlockTurn,300);
 }
 
 // ═══ 제출 ═══
 function submitOrders(){
-  if(!gameRunning)return;let bt=0,st=0;
+  if(!gameRunning||isProcessingTurn)return;
+  lockTurn();
+  let bt=0,st=0;
   for(const[sym,amt]of Object.entries(orders)){
     if(!amt||delistedSet.has(sym))continue;const p=prices[sym];if(!p||p<=0)continue;
     if(amt>0){if(amt>cash)continue;cash-=amt;const coinQty=amt/p;if(!holdings[sym])holdings[sym]={qty:0,totalCost:0};
@@ -1509,6 +1524,7 @@ function submitOrders(){
   resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
   if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
   else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
+  setTimeout(unlockTurn,300);
 }
 
 // ═══ 자산 ═══
@@ -1583,6 +1599,7 @@ function updateTimerDisplay(){
 
 // ═══ 시작/끝 ═══
 function startGame(){
+  isProcessingTurn=false;
   cash=START_CASH;holdings={};orders={};turn=1;income=50;inflTotal=0;
   delistedSet.clear();scamTimers={};activeScam=null;currentNews=[];newsEffects={};
   newCoinSet.clear();usedCoinPool.clear();spawnedScams.clear();allNewsHistory=[];

@@ -4,6 +4,7 @@
 
 실제 투자자 1,400만 명 중 **60%가 손실**을 봅니다.
 당신도 그 60%에 속할까요?
+<img width="2816" height="1536" alt="Gemini_Generated_Image_f7u0rzf7u0rzf7u0" src="https://github.com/user-attachments/assets/ff5c78c2-32c0-43c3-b0d5-11f978b5c16d" />
 
 ---
 

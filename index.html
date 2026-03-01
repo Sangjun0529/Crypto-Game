@@ -531,7 +531,7 @@ const T={
     bankrupt:'💸 파산!',finished:'🏁 게임 종료!',endTitle:'게임 종료',bankruptLabel:'파산',
     topPct:'상위',finalAsset:'최종 자산',cashLabel:'현금',coinLabel:'코인',totalTurn:'총',turnUnit:'턴',inflAccum:'인플레이션 누적',
     gameStart:'🎮 게임시작! 20턴 안에 최대 수익을 올리세요!',
-    timeOver:'⏰ 시간초과! 자동제출',
+    timeOver:'⏰ 시간초과! 주문 초기화, 턴 넘김',
     turnSummary:'✅ 턴%t: 매수$%b/매도$%s/인플레-$%i',turnNoOrder:'턴%t: 주문없음. 인플레-$%i',
     scamNew:'⚠️ 신규 상장: %n(%s) — 스캠 주의!',delisted:'💀 %s 상장폐지!',
     adCountdown:'%s초 후 결과를 확인할 수 있습니다...',adLoading:'결과를 불러오는 중...',
@@ -554,7 +554,7 @@ const T={
     bankrupt:'💸 Bankrupt!',finished:'🏁 Game Over!',endTitle:'Game Over',bankruptLabel:'Bankrupt',
     topPct:'Top',finalAsset:'Final',cashLabel:'Cash',coinLabel:'Coins',totalTurn:'Total',turnUnit:'turns',inflAccum:'Inflation',
     gameStart:'🎮 Start! Maximize profits in 20 turns!',
-    timeOver:'⏰ Time up! Auto-submit',
+    timeOver:'⏰ Time up! Orders reset, skipping turn',
     turnSummary:'✅ Turn%t: Buy$%b/Sell$%s/Infl-$%i',turnNoOrder:'Turn%t: No orders. Infl-$%i',
     scamNew:'⚠️ New listing: %n(%s) — Scam alert!',delisted:'💀 %s delisted!',
     adCountdown:'Results in %s seconds...',adLoading:'Loading results...',
@@ -1094,6 +1094,21 @@ function updatePS(){
 }
 function resetOrders(){orders={};for(const c of COINS)updateOD(c.sym);updatePS();showSysNews(t('orderReset'));}
 
+// ═══ 시간초과: 주문 초기화 후 턴 넘김 ═══
+function skipTurn(){
+  if(!gameRunning)return;
+  orders={};
+  const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
+  updateIncome();
+  turn++;
+  if(turn>MAX_TURNS){endGame('finished');return;}
+  simulateNextTurn();
+  for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
+  if(getTotalAsset()<=0){endGame('bankrupt');return;}
+  resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
+  showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
+}
+
 // ═══ 제출 ═══
 function submitOrders(){
   if(!gameRunning)return;let bt=0,st=0;
@@ -1171,7 +1186,7 @@ function updateTurnGauge(){
 function resetTimer(){
   timeLeft=TURN_TIME;clearInterval(timerInterval);updateTimerDisplay();
   timerInterval=setInterval(()=>{if(!gameRunning)return;timeLeft--;updateTimerDisplay();
-    if(timeLeft<=0){showSysNews(t('timeOver'));submitOrders();}
+    if(timeLeft<=0){showSysNews(t('timeOver'));skipTurn();}
   },1000);
 }
 function updateTimerDisplay(){

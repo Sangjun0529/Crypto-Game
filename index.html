@@ -297,9 +297,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 
   /* ★ 모바일: 뉴스 배너 표시, 광고 배너 숨김 */
   .news-banner-mobile{display:block;}
-  .news-banner-mobile.nb-top{margin:2px 4px;}
-  .news-banner-mobile.nb-infeed{grid-column:1/-1;margin:0;}
-  .news-banner-mobile.nb-bottom{margin:0 4px 4px;}
+  .news-banner-mobile.nb-top{margin:2px 4px 0;}
   .ad-banner-top{display:none !important;}
   .ad-banner-infeed{display:none !important;}
 
@@ -445,14 +443,13 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
     </div>
   </aside>
 
-  <!-- 모바일 상단 뉴스 배너 -->
+  <!-- 모바일 상단 뉴스 배너 (3개) -->
   <div class="news-banner-mobile nb-top" id="news-banner-top"></div>
+  <div class="news-banner-mobile nb-top" id="news-banner-mid"></div>
+  <div class="news-banner-mobile nb-top" id="news-banner-bottom"></div>
 
   <!-- ═══ 오른쪽 코인 영역 ═══ -->
   <div class="coin-area" id="coin-container"></div>
-
-  <!-- 모바일 하단 뉴스 배너 -->
-  <div class="news-banner-mobile nb-bottom" id="news-banner-bottom"></div>
 </div>
 
 <div class="bottom-bar">
@@ -1005,13 +1002,6 @@ function buildCoinCards(){
       <div class="order-pending" id="pending-${sym}"></div>
     </div>`;
     ct.appendChild(sec);
-    // 4번째 카드 뒤에 인피드 뉴스 배너 삽입 (모바일)
-    if(isMobile&&idx===3){
-      const nbDiv=document.createElement('div');
-      nbDiv.className='news-banner-mobile nb-infeed';
-      nbDiv.id='news-banner-mid';
-      ct.appendChild(nbDiv);
-    }
   }
   drawAllCharts();
 }

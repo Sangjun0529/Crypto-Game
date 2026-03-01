@@ -12,7 +12,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',-apple-system
 
 /* ─── 헤더 ─── */
 header{display:flex;justify-content:space-between;align-items:center;padding:12px 28px;background:var(--card);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
-.logo{font-size:22px;font-weight:800;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo{font-size:16px;font-weight:900;line-height:1.05;letter-spacing:2px;background:linear-gradient(135deg,#f59e0b,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;}
 .header-stats{display:flex;gap:28px;align-items:center;}
 .stat{text-align:center;}
 .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
@@ -217,6 +217,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 .order-slider-labels .buy-label{color:var(--buy);font-size:8px;font-weight:800;}
 .order-slider-val{font-size:9px;font-weight:800;white-space:nowrap;color:var(--muted);text-shadow:0 1px 3px rgba(0,0,0,.8);}
 
+/* ─── 모바일 턴 게이지 ─── */
+.mobile-turn-gauge{display:none;height:14px;background:#0d1117;position:relative;border-bottom:1px solid var(--border);margin:0 4px;border-radius:3px;overflow:hidden;}
+.mtg-fill{height:100%;background:linear-gradient(90deg,var(--accent),#eab308);border-radius:3px;transition:width .5s;}
+.mtg-fill.ending{background:linear-gradient(90deg,#ef4444,#f87171);}
+.mtg-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.8);}
+
 /* ─── 모바일 사이드바 토글 ─── */
 .mobile-sidebar-toggle{display:none;}
 .sidebar-overlay{display:none;}
@@ -294,6 +300,9 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
   .order-row{display:none !important;}
   .order-slider-wrap{display:block;}
 
+  /* ★ 모바일: 턴 게이지 */
+  .mobile-turn-gauge{display:block;}
+
   /* ★ 모바일: 뉴스 배너 표시, 광고 배너 숨김 */
   .news-banner-mobile{display:block;}
   .news-banner-mobile.nb-top{margin:2px 4px 0;}
@@ -341,7 +350,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 /* ═══ 매우 작은 화면 (480px 이하) ═══ */
 @media(max-width:480px){
   header{padding:4px 6px;}
-  .logo{font-size:14px;}
+  .logo{font-size:10px;letter-spacing:1px;}
   .lang-toggle span{padding:2px 6px;font-size:9px;}
   .header-stats{gap:4px;}
   .stat-label{font-size:7px;}
@@ -383,7 +392,7 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 <body>
 
 <header>
-  <div class="logo" id="logo-text">크립토 트레이더</div>
+  <div class="logo" id="logo-text">CRYPTO<br>TRADER</div>
   <div class="header-stats">
     <div class="lang-toggle" id="lang-toggle" onclick="switchLang()">
       <span id="lang-ko" class="active">KO</span>
@@ -442,6 +451,12 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
     </div>
   </aside>
 
+  <!-- 모바일 턴 게이지 -->
+  <div class="mobile-turn-gauge" id="mobile-turn-gauge">
+    <div class="mtg-fill" id="mtg-fill" style="width:5%;"></div>
+    <span class="mtg-text" id="mtg-text">1/20</span>
+  </div>
+
   <!-- 모바일 상단 뉴스 배너 (3개) -->
   <div class="news-banner-mobile nb-top" id="news-banner-top"></div>
   <div class="news-banner-mobile nb-top" id="news-banner-mid"></div>
@@ -469,17 +484,16 @@ header{display:flex;justify-content:space-between;align-items:center;padding:12p
 </div>
 
 <div id="overlay">
-  <h1>크립토 트레이더</h1>
+  <h1>CRYPTO TRADER</h1>
   <div class="desc">
     모의투자 시뮬레이터<br><br>
-    • 8개 가상 코인 차트를 보며 <b>20턴</b> 동안 투자<br>
+    • 👑 <b>대장주 BTCX</b> + 7개 코인으로 <b>20턴</b> 투자<br>
     • 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>
-    • 뉴스의 군중심리를 읽고 빠르게 대응하세요!<br>
-    • <b>전액 매수/매도</b>로 한 번에 올인 가능<br>
-    • <b>제출 버튼</b>을 누르면 주문 체결 → 다음 턴<br>
+    • 📈 신규 코인 상장 &amp; 하위 종목 상장폐지!<br>
+    • 🚨 <b>사기 코인 주의!</b> 가짜 호재 후 갑자기 폐지<br>
+    • 💀 수익률 -100%면 즉시 파산!<br>
     • 1턴 = 1분, 시간 내에 주문을 완료하세요<br>
-    • 가만히 있으면 인플레이션으로 현금 가치 ↓<br>
-    • 💀 상장폐지 코인 주의!<br><br>
+    • 가만히 있으면 인플레이션으로 현금 가치 ↓<br><br>
     <span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>
   </div>
   <div class="result-card" id="result-card" style="display:none;"></div>
@@ -525,7 +539,7 @@ const T={
     pendingDefault:'주문을 설정하고 제출하세요.',submit:'📊 주문 제출 → 다음 턴',reset:'초기화',
     orderReset:'주문 초기화',noHold:'보유분 없음',noTrade:'거래불가',overHold:'초과',noCash:'현금 부족',cashShort:'현금($%s) 부족',overSell:'보유분($%s) 초과',
     buy:'매수',sell:'매도',pending:'건',
-    gameTitle:'크립토 트레이더',gameDesc:`모의투자 시뮬레이터<br><br>• 8개 가상 코인 차트를 보며 <b>20턴</b> 동안 투자<br>• 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>• 뉴스의 군중심리를 읽고 빠르게 대응하세요!<br>• <b>전액 매수/매도</b>로 한 번에 올인 가능<br>• <b>제출 버튼</b>을 누르면 주문 체결 → 다음 턴<br>• 1턴 = 1분, 시간 내에 주문을 완료하세요<br>• 가만히 있으면 인플레이션으로 현금 가치 ↓<br>• 💀 상장폐지 코인 주의!<br><br><span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>`,
+    gameTitle:'CRYPTO TRADER',gameDesc:`모의투자 시뮬레이터<br><br>• 👑 <b>대장주 BTCX</b> + 7개 코인으로 <b>20턴</b> 투자<br>• 📰 <b>매 턴 뉴스 3개</b>가 시세에 영향을 줍니다<br>• 📈 신규 코인 상장 &amp; 하위 종목 상장폐지!<br>• 🚨 <b>사기 코인 주의!</b> 가짜 호재 후 갑자기 폐지<br>• 💀 수익률 -100%면 즉시 파산!<br>• 1턴 = 1분, 시간 내 주문 완료하세요<br>• 가만히 있으면 인플레이션으로 현금 가치 ↓<br><br><span style="color:var(--buy)">빨강 = 매수</span> &nbsp;|&nbsp; <span style="color:var(--sell)">파랑 = 매도</span>`,
     startBtn:'게임 시작',restartBtn:'다시 시작',
     bankrupt:'💸 파산!',finished:'🏁 게임 종료!',endTitle:'게임 종료',bankruptLabel:'파산',
     topPct:'상위',finalAsset:'최종 자산',cashLabel:'현금',coinLabel:'코인',totalTurn:'총',turnUnit:'턴',inflAccum:'인플레이션 누적',
@@ -548,7 +562,7 @@ const T={
     pendingDefault:'Set your orders and submit.',submit:'📊 Submit → Next Turn',reset:'Reset',
     orderReset:'Orders reset',noHold:'No holdings',noTrade:'Not tradable',overHold:'exceeds',noCash:'No cash',cashShort:'Cash($%s) short',overSell:'Holdings($%s) exceeded',
     buy:'Buy',sell:'Sell',pending:'orders',
-    gameTitle:'Crypto Trader',gameDesc:`Trading Simulator<br><br>• Trade <b>8 virtual coins</b> over <b>20 turns</b><br>• 📰 <b>3 news per turn</b> affect prices<br>• Read crowd sentiment & react fast!<br>• <b>Buy/Sell All</b> to go all-in<br>• Hit <b>Submit</b> to execute & go next<br>• 1 turn = 1 min, complete before time's up<br>• Idle cash loses value to inflation<br>• 💀 Watch out for delisted coins!<br><br><span style="color:var(--buy)">Red = Buy</span> &nbsp;|&nbsp; <span style="color:var(--sell)">Blue = Sell</span>`,
+    gameTitle:'CRYPTO TRADER',gameDesc:`Trading Simulator<br><br>• 👑 <b>BTCX leader</b> + 7 coins over <b>20 turns</b><br>• 📰 <b>3 news per turn</b> affect prices<br>• 📈 New coins list &amp; bottom coins delist!<br>• 🚨 <b>Watch for SCAM coins!</b> Fake hype then rug pull<br>• 💀 -100% P&L = instant bankruptcy!<br>• 1 turn = 1 min, complete before time's up<br>• Idle cash loses value to inflation<br><br><span style="color:var(--buy)">Red = Buy</span> &nbsp;|&nbsp; <span style="color:var(--sell)">Blue = Sell</span>`,
     startBtn:'Start Game',restartBtn:'Restart',
     bankrupt:'💸 Bankrupt!',finished:'🏁 Game Over!',endTitle:'Game Over',bankruptLabel:'Bankrupt',
     topPct:'Top',finalAsset:'Final',cashLabel:'Cash',coinLabel:'Coins',totalTurn:'Total',turnUnit:'turns',inflAccum:'Inflation',
@@ -716,6 +730,7 @@ const RANK_COMMENTS_EN={
 100:'💀 Legendary losses... at this point it\'s almost a talent.'
 };
 
+const DOMINANT_COIN={sym:'BTCX',name:'비트엑스',nameEn:'BitcoinX',color:'#f7931a',isDominant:true};
 const COIN_NAME_POOL=[
   {sym:'NOVA',name:'노바코인',nameEn:'NovaCoin',color:'#e040fb'},{sym:'ZENX',name:'제닉스',nameEn:'Zenix',color:'#7c4dff'},
   {sym:'BOLT',name:'볼트체인',nameEn:'BoltChain',color:'#ff6d00'},{sym:'LYNX',name:'링크스',nameEn:'Lynx',color:'#00e5ff'},
@@ -789,11 +804,15 @@ let cash=START_CASH,holdings={},prices={},priceHist={},changes={},orders={};
 let turn=0,timeLeft=TURN_TIME,timerInterval=null,gameRunning=false;
 let income=50,inflTotal=0,delistedSet=new Set(),scamTimers={},activeScam=null;
 let currentNews=[],newsEffects={};
+let newCoinSet=new Set(),usedCoinPool=new Set(),spawnedScams=new Set();
 
 function generateRandomCoins(){
-  const s=[...COIN_NAME_POOL].sort(()=>Math.random()-.5);
-  COINS=s.slice(0,8).map(c=>({...c,baseP:Math.round((5+Math.random()*55)*100)/100}));
-  SCAM_POOL=[...SCAM_NAME_POOL].sort(()=>Math.random()-.5).slice(0,3);
+  const dom={...DOMINANT_COIN,baseP:Math.round((300+Math.random()*400)*100)/100};
+  const rest=[...COIN_NAME_POOL].sort(()=>Math.random()-.5);
+  const picked=rest.slice(0,7).map(c=>({...c,baseP:Math.round((5+Math.random()*55)*100)/100}));
+  COINS=[dom,...picked];
+  usedCoinPool=new Set(COINS.map(c=>c.sym));
+  SCAM_POOL=[...SCAM_NAME_POOL].sort(()=>Math.random()-.5);
 }
 
 // ═══ 다국어 헬퍼 ═══
@@ -833,12 +852,25 @@ function generateNews(){
     newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd*(1+n.impact*.5);
     for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.15;
   }
+  // 사기 코인 하이프 뉴스 끼워넣기
+  const activeScams=COINS.filter(c=>c.isScam&&!delistedSet.has(c.sym)&&scamTimers[c.sym]>1);
+  let scamNewsInserted=false;
   for(let i=0;i<2;i++){
-    const coin=pick(),r2=Math.random(),s2=r2<.4?'bullish':r2<.7?'bearish':'neutral';
-    const n=pickN(NEWS_POOL[s2],NEWS_POOL_EN[s2],coin);
-    currentNews.push({...n,sentiment:s2,isMain:false,targetSym:coin.sym});
-    newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd;
-    for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.08;
+    // 사기코인이 있고 아직 가짜뉴스 안 넣었으면 강제 호재
+    if(!scamNewsInserted&&activeScams.length>0&&Math.random()<0.7){
+      const sc=activeScams[Math.floor(Math.random()*activeScams.length)];
+      const n=pickN(NEWS_POOL['bullish'],NEWS_POOL_EN['bullish'],sc);
+      currentNews.push({...n,sentiment:'bullish',isMain:false,targetSym:sc.sym,crowd:Math.abs(n.crowd)*1.5});
+      newsEffects[sc.sym]=(newsEffects[sc.sym]||0)+Math.abs(n.crowd)*2;
+      for(const c of ac)if(c.sym!==sc.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.05;
+      scamNewsInserted=true;
+    }else{
+      const coin=pick(),r2=Math.random(),s2=r2<.4?'bullish':r2<.7?'bearish':'neutral';
+      const n=pickN(NEWS_POOL[s2],NEWS_POOL_EN[s2],coin);
+      currentNews.push({...n,sentiment:s2,isMain:false,targetSym:coin.sym});
+      newsEffects[coin.sym]=(newsEffects[coin.sym]||0)+n.crowd;
+      for(const c of ac)if(c.sym!==coin.sym)newsEffects[c.sym]=(newsEffects[c.sym]||0)+n.crowd*.08;
+    }
   }
 }
 
@@ -891,59 +923,90 @@ function initPrices(){
 }
 function simulateNextTurn(){
   generateNews();
+  // ═══ 시세 변동 ═══
   for(const c of COINS){
     if(delistedSet.has(c.sym)){prices[c.sym]=0;changes[c.sym]=-100;continue;}
-    const prev=prices[c.sym],trend=(changes[c.sym]||0)*.2,rnd=Math.random()*20-10;
+    const prev=prices[c.sym],trend=(changes[c.sym]||0)*.2;
+    // 대장주는 변동성 낮춤
+    const volMult=c.isDominant?0.4:1;
+    const rnd=(Math.random()*20-10)*volMult;
     let base=trend+rnd*.8;
     let crowd=newsEffects[c.sym]||0;
 
     // ═══ 뉴스 불신 알고리즘 ═══
-    // 1) 뉴스 신뢰도: 뉴스가 시세에 실제 반영되는 비율 (30~110%, 가끔 과잉/부족)
     const reliability=0.3+Math.random()*0.8;
     crowd*=reliability;
-
-    // 2) 가짜 뉴스 / 역행 이벤트: 뉴스와 정반대로 움직이는 확률
-    //    초반(1~5턴) 35%, 중반(6~12턴) 25%, 후반(13~20턴) 15%
+    // 사기 코인은 하이프 중엔 무조건 상승
+    if(c.isScam&&scamTimers[c.sym]>1){crowd=Math.abs(crowd)+15+Math.random()*20;}
     const fakeChance=turn<=5?0.35:turn<=12?0.25:0.15;
-    if(Math.abs(crowd)>3&&Math.random()<fakeChance){
-      crowd=-crowd*(0.5+Math.random()*0.7); // 반대 방향으로 50~120% 역전
+    if(!c.isScam&&Math.abs(crowd)>3&&Math.random()<fakeChance){
+      crowd=-crowd*(0.5+Math.random()*0.7);
     }
-
-    // 3) 이미 반영됨(priced-in): 큰 호재/악재가 나왔지만 이미 가격에 선반영
-    //    crowd 절대값이 클수록 priced-in 확률 증가
     if(Math.abs(crowd)>12&&Math.random()<0.30){
-      crowd*=0.1+Math.random()*0.2; // 기대의 10~30%만 실제 반영
+      crowd*=0.1+Math.random()*0.2;
     }
-
-    // 4) 되돌림(mean-reversion): 직전 턴 변동이 컸으면 반대로 되돌림
     const prevChange=changes[c.sym]||0;
-    if(Math.abs(prevChange)>8){
-      const reversion=-prevChange*(0.2+Math.random()*0.3);
-      base+=reversion;
-    }
-
-    // 5) 랜덤 노이즈 강화: 시장의 비합리성, 예측 불가능한 변동
-    const chaos=(Math.random()-0.5)*8;
-
+    if(Math.abs(prevChange)>8){base+=-prevChange*(0.2+Math.random()*0.3);}
+    const chaos=(Math.random()-0.5)*8*volMult;
     const total=Math.max(-30,Math.min(35,base+crowd+chaos));
     const np=Math.max(.5,prev*(1+total/100));
     prices[c.sym]=np;changes[c.sym]=((np-prev)/prev)*100;
     priceHist[c.sym].push(np);if(priceHist[c.sym].length>30)priceHist[c.sym].shift();
   }
-  for(const[sym]of Object.entries(scamTimers)){
+
+  // ═══ 사기 코인 타이머 ═══
+  for(const sym of Object.keys(scamTimers)){
     scamTimers[sym]--;
     if(scamTimers[sym]<=0&&!delistedSet.has(sym)){
       delistedSet.add(sym);prices[sym]=0;changes[sym]=-100;
-      showSysNews(t('delisted').replace('%s',sym));
+      showSysNews(`🚨 ${sym} ${lang==='en'?'was a SCAM! Delisted!':'사기 발각! 상장폐지!'}`);
       if(holdings[sym]&&holdings[sym].qty>0)holdings[sym].qty=0;
     }
   }
-  if(turn>3&&!activeScam&&Math.random()<.20){
-    const sc=SCAM_POOL[Math.floor(Math.random()*SCAM_POOL.length)];
-    activeScam={...sc,baseP:5+Math.random()*10,isScam:true};
-    COINS.push(activeScam);prices[sc.sym]=activeScam.baseP;changes[sc.sym]=Math.random()*30+10;
-    priceHist[sc.sym]=[activeScam.baseP];scamTimers[sc.sym]=2+Math.floor(Math.random()*3);
-    showSysNews(t('scamNew').replace('%n',coinName(sc)).replace('%s',sc.sym));
+
+  // ═══ 하위 5종목 상장폐지 확률 ═══
+  const active=COINS.filter(c=>!delistedSet.has(c.sym)&&!c.isDominant&&!c.isScam);
+  const sorted=[...active].sort((a,b)=>(prices[a.sym]||0)-(prices[b.sym]||0));
+  const bottom5=sorted.slice(0,5);
+  for(const c of bottom5){
+    const isNew=newCoinSet.has(c.sym);
+    const chance=isNew?0.50:0.05;
+    if(Math.random()<chance){
+      delistedSet.add(c.sym);prices[c.sym]=0;changes[c.sym]=-100;
+      showSysNews(t('delisted').replace('%s',c.sym));
+      if(holdings[c.sym]&&holdings[c.sym].qty>0)holdings[c.sym].qty=0;
+    }
+  }
+
+  // ═══ 신규 코인 스폰 (최대 2개, 턴 4 이후) ═══
+  if(turn>3){
+    const availPool=COIN_NAME_POOL.filter(c=>!usedCoinPool.has(c.sym));
+    const activeCount=COINS.filter(c=>!delistedSet.has(c.sym)).length;
+    const maxSpawn=Math.min(2,availPool.length,12-activeCount);
+    for(let i=0;i<maxSpawn;i++){
+      if(Math.random()<0.20){
+        const nc=availPool.splice(Math.floor(Math.random()*availPool.length),1)[0];
+        if(!nc)break;
+        const newCoin={...nc,baseP:2+Math.random()*15};
+        COINS.push(newCoin);usedCoinPool.add(nc.sym);newCoinSet.add(nc.sym);
+        prices[nc.sym]=newCoin.baseP;changes[nc.sym]=Math.random()*20-5;
+        priceHist[nc.sym]=[newCoin.baseP];
+        showSysNews(`📈 ${lang==='en'?'New listing':'신규 상장'}: ${coinName(nc)}(${nc.sym})`);
+      }
+    }
+  }
+
+  // ═══ 사기 코인 스폰 (별도) ═══
+  if(turn>4&&Math.random()<0.15){
+    const availScam=SCAM_POOL.filter(c=>!spawnedScams.has(c.sym)&&!delistedSet.has(c.sym));
+    if(availScam.length>0){
+      const sc=availScam[Math.floor(Math.random()*availScam.length)];
+      const scamCoin={...sc,baseP:3+Math.random()*12,isScam:true};
+      COINS.push(scamCoin);spawnedScams.add(sc.sym);
+      prices[sc.sym]=scamCoin.baseP;changes[sc.sym]=Math.random()*30+10;
+      priceHist[sc.sym]=[scamCoin.baseP];scamTimers[sc.sym]=2+Math.floor(Math.random()*2);
+      showSysNews(`🔥 ${lang==='en'?'HOT new listing':'화제의 신규 상장'}: ${coinName(sc)}(${sc.sym})`);
+    }
   }
 }
 
@@ -951,7 +1014,13 @@ function simulateNextTurn(){
 function buildCoinCards(){
   const ct=document.getElementById('coin-container');ct.innerHTML='';
   const totalAsset=getTotalAsset()||1;
-  for(let idx=0;idx<COINS.length;idx++){const c=COINS[idx];
+  // 가격 높은 순 정렬 (상장폐지 코인은 뒤로)
+  const sorted=[...COINS].sort((a,b)=>{
+    const da=delistedSet.has(a.sym)?1:0,db=delistedSet.has(b.sym)?1:0;
+    if(da!==db)return da-db;
+    return(prices[b.sym]||0)-(prices[a.sym]||0);
+  });
+  for(let idx=0;idx<sorted.length;idx++){const c=sorted[idx];
     const sym=c.sym,p=prices[sym]||c.baseP,ch=changes[sym]||0,isUp=ch>=0,isDead=delistedSet.has(sym);
     const h=holdings[sym],hQty=h?h.qty:0,hq=hQty*p;
     const holdRatio=hq/totalAsset*100;
@@ -973,7 +1042,7 @@ function buildCoinCards(){
     const orderToggleText=isMobile?(pendingLabel||`▼ ${lang==='en'?'Trade':'주문'}`):'';
     sec.innerHTML=`<div class="coin-header">
       <div class="coin-icon" style="background:${c.color}">${sym[0]}</div>
-      <div class="coin-title"><div class="coin-name">${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym} · $${p.toFixed(2)}</div></div>
+      <div class="coin-title"><div class="coin-name">${c.isDominant?'👑 ':''}${coinName(c)} ${c.isScam?'⚠️':''} ${isDead?'💀':''}</div><div class="coin-sym">${sym} · $${p.toFixed(2)}</div></div>
       <div class="coin-price-area"><div class="coin-change ${cc}">${isUp?'▲':'▼'} ${Math.abs(ch).toFixed(2)}%</div></div>
       ${holdHtml}
     </div>
@@ -1099,10 +1168,13 @@ function skipTurn(){
   const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
   updateIncome();
   turn++;
+  if(getTotalAsset()<=0){endGame('bankrupt');return;}
   if(turn>MAX_TURNS){endGame('finished');return;}
   simulateNextTurn();
   for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
   if(getTotalAsset()<=0){endGame('bankrupt');return;}
+  const pnlSkip=((getTotalAsset()-START_CASH)/START_CASH)*100;
+  if(pnlSkip<=-100){endGame('bankrupt');return;}
   resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
   showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
 }
@@ -1120,11 +1192,16 @@ function submitOrders(){
   const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
   updateIncome();
   orders={};turn++;
+  // 제출 직후 -100% 체크
+  if(getTotalAsset()<=0){endGame('bankrupt');return;}
   // 20턴 종료 체크
   if(turn>MAX_TURNS){endGame('finished');return;}
   simulateNextTurn();
   for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
   if(getTotalAsset()<=0){endGame('bankrupt');return;}
+  // 수익률 -100% 체크
+  const pnlChk=((getTotalAsset()-START_CASH)/START_CASH)*100;
+  if(pnlChk<=-100){endGame('bankrupt');return;}
   resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
   if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
   else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
@@ -1178,6 +1255,11 @@ function updateTurnGauge(){
   const fill=document.getElementById('turn-fill');
   fill.style.width=pct+'%';
   fill.className='turn-gauge-fill'+(pct>=80?' ending':'');
+  // 모바일 턴 게이지 업데이트
+  const mfill=document.getElementById('mtg-fill');
+  const mtext=document.getElementById('mtg-text');
+  if(mfill){mfill.style.width=pct+'%';mfill.className='mtg-fill'+(pct>=80?' ending':'');}
+  if(mtext)mtext.textContent=`${turn}/${MAX_TURNS}`;
 }
 
 // ═══ 타이머 ═══
@@ -1199,6 +1281,7 @@ function updateTimerDisplay(){
 function startGame(){
   cash=START_CASH;holdings={};orders={};turn=1;income=50;inflTotal=0;
   delistedSet.clear();scamTimers={};activeScam=null;currentNews=[];newsEffects={};
+  newCoinSet.clear();usedCoinPool.clear();spawnedScams.clear();
   generateRandomCoins();gameRunning=true;initPrices();
   for(const c of COINS){const hist=[];let p=prices[c.sym];
     for(let i=0;i<15;i++){p=Math.max(1,p*(1+(Math.random()*.1-.05)));hist.push(p);}
@@ -1572,7 +1655,7 @@ function switchLang(){
   }
 }
 function updateStaticUI(){
-  document.getElementById('logo-text').textContent=t('logo');
+  document.getElementById('logo-text').innerHTML='CRYPTO<br>TRADER';
   // 헤더 stat labels
   const labels=document.querySelectorAll('.stat-label');
   const lkeys=['cash','coinAsset','totalAsset','pnl'];
@@ -1588,7 +1671,7 @@ function updateStaticUI(){
   ticks.forEach((el,i)=>{if(gt[i])el.textContent=gt[i];});
   // 오버레이
   const ov=document.getElementById('overlay');
-  ov.querySelector('h1').textContent=t('gameTitle');
+  const ovH1=ov.querySelector('h1');if(!document.getElementById('result-card')||document.getElementById('result-card').style.display==='none')ovH1.textContent='CRYPTO TRADER';
   ov.querySelector('.desc').innerHTML=t('gameDesc');
   const startBtn=document.getElementById('start-btn');
   if(startBtn.textContent!==t('restartBtn'))startBtn.textContent=t('startBtn');

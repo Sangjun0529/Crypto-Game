@@ -1668,13 +1668,13 @@ function skipTurn(){
     const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
     updateIncome();
     turn++;
-    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    if(getTotalAsset()<1){endGame('bankrupt');return;}
     if(turn>MAX_TURNS){endGame('finished');return;}
     simulateNextTurn();
     for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
-    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    if(getTotalAsset()<1){endGame('bankrupt');return;}
     const pnlSkip=((getTotalAsset()-START_CASH)/START_CASH)*100;
-    if(pnlSkip<=-100){endGame('bankrupt');return;}
+    if(pnlSkip<=-99.9){endGame('bankrupt');return;}
     resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();updatePS();
     showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
   }finally{setTimeout(unlockTurn,300);}
@@ -1696,16 +1696,16 @@ function submitOrders(){
     const inf=cash*INFLATION_PER_TURN;cash=Math.max(0,cash-inf);inflTotal+=inf;
     updateIncome();
     orders={};turn++;
-    // 제출 직후 -100% 체크
-    if(getTotalAsset()<=0){endGame('bankrupt');return;}
+    // 제출 직후 파산 체크 ($1 미만 = 실질 파산)
+    if(getTotalAsset()<1){endGame('bankrupt');return;}
     // 20턴 종료 체크
     if(turn>MAX_TURNS){endGame('finished');return;}
     simulateNextTurn();
     for(const[sym,h]of Object.entries(holdings))if(delistedSet.has(sym))h.qty=0;
-    if(getTotalAsset()<=0){endGame('bankrupt');return;}
-    // 수익률 -100% 체크
+    if(getTotalAsset()<1){endGame('bankrupt');return;}
+    // 수익률 -99.9% 이하 = 파산 (화면 표시 -100.0% 기준)
     const pnlChk=((getTotalAsset()-START_CASH)/START_CASH)*100;
-    if(pnlChk<=-100){endGame('bankrupt');return;}
+    if(pnlChk<=-99.9){endGame('bankrupt');return;}
     resetTimer();renderNewsPanel();buildCoinCards();updateHeader();updateTurnGauge();
     if(bt>0||st>0)showSysNews(t('turnSummary').replace('%t',turn).replace('%b',bt).replace('%s',st).replace('%i',inf.toFixed(1)));
     else showSysNews(t('turnNoOrder').replace('%t',turn).replace('%i',inf.toFixed(1)));
